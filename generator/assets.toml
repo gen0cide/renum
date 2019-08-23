@@ -1,0 +1,26 @@
+pkg = "static"
+dest = "./static/"
+fmt = true
+tags = ""
+clean = true
+output = "assets.go"
+noprefix = true
+unexporTed = true
+spread = false
+lcf = false
+debug = false
+
+[updater]
+  enabled = false
+
+
+[compression]
+  compress = true
+  method = "BestCompression"
+  keep = false
+
+[[custom]]
+  files = ["./templates/*"]
+  base = "./templates/"
+  prefix = ""
+  tags = ""

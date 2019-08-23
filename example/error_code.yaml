@@ -1,0 +1,21 @@
+# Enum configuration
+go:
+  name: ErrorCode
+  package_name: lib
+  package_path: github.com/gen0cide/renum/example/lib
+plugins:
+  error: true
+  text: true
+  json: true
+  yaml: true
+  sql: true
+  description: true
+values:
+  - name: unauthorized
+    message: The request was unauthorized.
+    comment: Unauthorized is thrown when the request action cannot be taken.
+    description: This error is used to signify that the request was made by an *authenticated* requester, but that requester is not authorized to perform the requested action.
+  - name: invalid_sql_query
+    message: The provided query was not valid SQL.
+    comment: InvalidSQLQuery is thrown when a user supplied SQL query is not valid.
+    description: This error often means the caller should perform further validation in order to locate situations where they're taking unsanitized input from users and interpolating that value directly into the SQL query.

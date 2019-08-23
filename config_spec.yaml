@@ -1,0 +1,194 @@
+# --------------------------------------------------------------------------------------------------
+# renum configuration specification
+# github.com/gen0cide/renum
+#
+# version 0.0.1
+#
+# This serves as both the reference and the documentation on the YAML configuration format.
+#
+# --------------------------------------------------------------------------------------------------
+# KEY: output_dir
+# DESCRIPTION: specifies the destination folder of the generated code.
+# REQUIRED: yes
+# DEFAULT: none
+# CLI FLAG: --output-dir, -o
+output_dir: ""
+
+# --------------------------------------------------------------------------------------------------
+# KEY: go
+# DESCRIPTION: holds information about the Go environment and code that will be generated.
+
+go:
+  # KEY: go.name
+  # DESCRIPTION: Name of the enum type you wish to create.
+  # REQUIRED: yes
+  # DEFAULT: none
+  # CLI FLAG: --go-name
+  name: ErrorCode
+
+  # KEY: go.package_name
+  # DESCRIPTION: The name of the go package where the generated code will reside
+  # REQUIRED: yes
+  # DEFAULT: none
+  # CLI FLAG: --go-package-name
+  package_name: lib
+
+  # KEY: go.package_path
+  # DESCRIPTION: The import path to the go package where the generated code will reside
+  # REQUIRED: yes
+  # DEFAULT: none
+  # CLI FLAG: --go-package-import-path
+  package_path: github.com/gen0cide/renum/example/lib
+
+  # KEY: go.filename
+  # DESCRIPTION: Lets you override the generated .go filename with a custom one.
+  # REQUIRED: no
+  # DEFAULT: generated_%s.go (%s = go.name in a pluralized snake_case)
+  # CLI FLAG: --go-filename
+  filename: ""
+
+# --------------------------------------------------------------------------------------------------
+# KEY: plugins
+# DESCRIPTION: holds the switches and custom global overrides for various codegen plugins.
+
+plugins:
+  # KEY: plugins.error
+  # DESCRIPTION: Implements the Go error interface.
+  # REQUIRED: no
+  # DEFAULT: false
+  # CLI FLAG: --enable-errors
+  error: false
+
+  # KEY: plugins.text
+  # DESCRIPTION: Implements the text.Marshaler and text.Unmarshaler interfaces.
+  # REQUIRED: no
+  # DEFAULT: false
+  # CLI FLAG: --enable-text
+  text: false
+
+  # KEY: plugins.json
+  # DESCRIPTION: implements the json.Marshaler and json.Unmarshaler interfaces.
+  # REQUIRED: no
+  # DEFAULT: false
+  # CLI FLAG: --enable-json
+  json: false
+
+  # KEY: plugins.yaml
+  # DESCRIPTION: Implements the yaml.Marshaler and yaml.Unmarshaler interfaces.
+  # REQUIRED: no
+  # DEFAULT: false
+  # CLI FLAG: --enable-yaml
+  yaml: false
+
+  # KEY: plugins.sql
+  # DESCRIPTION: Implements the sql.Scanner and driver.Value interfaces.
+  # REQUIRED: no
+  # DEFAULT: false
+  # CLI FLAG: --enable-sql
+  sql: false
+
+  # KEY: plugins.description
+  # DESCRIPTION: Implements the renum.Descriptioner interface.
+  # REQUIRED: no
+  # DEFAULT: false
+  # CLI FLAG: --enable-descriptions
+  description: false
+
+  # KEY: plugins.flags
+  # DESCRIPTION: Implements the spf13.pflags Value interface.
+  # REQUIRED: no
+  # DEFAULT: false
+  # CLI FLAG: --enable-flags
+  flags: false
+
+  # ------------------------------------------------------------------------------------------------
+  # KEY: plugins.codes
+  # DESCRIPTION: Switches for a specific set of plugins that deal with response codes (usually only applicable to errors).
+
+  codes:
+    # KEY: plugins.codes.yarpc
+    # DESCRIPTION: Implements the renum.YARPCResponder interface.
+    # REQUIRED: no
+    # DEFAULT: false
+    # CLI FLAG: --enable-codes-yarpc
+    yarpc: false
+
+    # KEY: plugins.codes.http
+    # DESCRIPTION: Implements the renum.HTTPResponder interface.
+    # REQUIRED: no
+    # DEFAULT: false
+    # CLI FLAG: --enable-codes-http
+    http: false
+
+    # KEY: plugins.codes.os_exit
+    # DESCRIPTION: Implements the renum.ProcessResponder interface.
+    # REQUIRED: no
+    # DEFAULT: false
+    # CLI FLAG: --enable-codes-os-exit
+    os_exit: false
+
+    # ----------------------------------------------------------------------------------------------
+    # KEY: plugins.codes.defaults
+    # DESCRIPTION: Allows you to override the default value for any of the code plugins on a global level.
+
+    defaults:
+      # KEY: plugins.codes.defaults.yarpc
+      # DESCRIPTION: Sets the default YARPC Code for every enum value (can be overridden per value).
+      # REQUIRED: no
+      # DEFAULT: 2 (yarpcerrors.CodeUnknown)
+      # CLI FLAG: --plugin-codes-yarpc-default
+      yarpc: 2
+
+      # KEY: plugins.codes.defaults.http
+      # DESCRIPTION: Sets the default HTTP Code for every enum value (can be overridden per value).
+      # REQUIRED: no
+      # DEFAULT: 520 (Unknown Error)
+      # CLI FLAG: --plugin-codes-http-default
+      http: 520
+
+      # KEY: plugins.codes.defaults.os_exit
+      # DESCRIPTION: Sets the default OS exit code for every enum value (can be overridden per value).
+      # REQUIRED: no
+      # DEFAULT: 1
+      # CLI FLAG: --plugin-codes-os-exit-default
+      os_exit: 1
+
+# --------------------------------------------------------------------------------------------------
+# KEY: values
+# DESCRIPTION: Holds an array of enum value definitions.
+#
+# Easier to just talk through this section in bullet points with an example below.
+#
+# name:
+#   - should be a snake_case string
+#   - should be a verb or "effective" Go neumonic
+#
+# message:
+#   - will be emitted during Error() calls as the "detailed" area.
+#   - Keep it short and simple.
+#
+# comment:
+#   - Will be inserted into the Go code as the comment for the enum value.
+#
+# description:
+#   - can be retrieved by the Description() method if the renum.Descriptioner plugin was implemented.
+#   - will also be appended as a type comment underneath the comment, but above the declaration.
+#
+# codes:
+#   - functions exactly the same way plugins.codes.defaults do and can be used to specify codes
+#     on a per enum basis.
+#
+#
+values:
+  - name: unauthorized
+    message: The request was unauthorized.
+    comment: Unauthorized is thrown when the request action cannot be taken.
+    description: This error is used to signify that the request was made by an *authenticated* requester, but that requester is not authorized to perform the requested action.
+    codes:
+      yarpc: 4
+      http: 401
+      os_exit: 5
+  - name: invalid_sql_query
+    message: The provided query was not valid SQL.
+    comment: InvalidSQLQuery is thrown when a user supplied SQL query is not valid.
+    description: This error often means the caller should perform further validation in order to locate situations where they're taking unsanitized input from users and interpolating that value directly into the SQL query.
