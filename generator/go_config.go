@@ -12,6 +12,7 @@ type GoConfig struct {
 	Type        string     `json:"type,omitempty" mapstructure:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty" default:"int" validate:"required,oneof=int8 int16 int32 int64 int uint uint8 uint16 uint32 uint64"`
 	Name        string     `json:"name,omitempty" mapstructure:"name,omitempty" yaml:"name,omitempty" toml:"name,omitempty" validate:"required"`
 	Filename    string     `json:"filename,omitempty" mapstructure:"filename,omitempty" yaml:"filename,omitempty" toml:"filename,omitempty"`
+	Initialisms []string   `json:"initialisms,omitempty" mapstructure:"initialisms,omitempty" yaml:"initialisms,omitempty" toml:"initialisms,omitempty"`
 	PackageName string     `json:"package_name,omitempty" mapstructure:"package_name,omitempty" yaml:"package_name,omitempty" toml:"package_name,omitempty" validate:"required"`
 	PackagePath string     `json:"package_path,omitempty" mapstructure:"package_path,omitempty" yaml:"package_path,omitempty" toml:"package_path,omitempty" validate:"required"`
 	SkipUnknown bool       `json:"skip_unknown,omitempty" mapstructure:"skip_unknown,omitempty" yaml:"skip_unknown,omitempty" toml:"skip_unknown,omitempty"`

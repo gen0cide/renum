@@ -38,3 +38,9 @@ type Enum interface {
 	sql.Scanner
 	driver.Value
 }
+
+type EnumTypeInfo struct {
+	Name      string
+	Code      int
+	Namespace string
+}

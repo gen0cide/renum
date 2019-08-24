@@ -47,6 +47,16 @@ go:
   # CLI FLAG: --go-filename
   filename: ""
 
+  # KEY: go.initialisms
+  # DESCRIPTION: Allows the user to add letter acronyms (aka "initialisms") that are used
+  #              to inform the parser that an acronym should be treated as a capitalized word.
+  # REQUIRED: no
+  # DEFAULT: []string
+  # CLI FLAG: N/A
+  initialisms:
+    - AMI
+    - EC2
+
 # --------------------------------------------------------------------------------------------------
 # KEY: plugins
 # DESCRIPTION: holds the switches and custom global overrides for various codegen plugins.

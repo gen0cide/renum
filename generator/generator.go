@@ -52,6 +52,12 @@ type Generator struct {
 // NewGenerator is a constructor method for creating a new Generator with default
 // templates loaded.
 func NewGenerator(config *Config) (*Generator, error) {
+	if config == nil {
+		return nil, errors.New("cannot create a generator with a nil config")
+	}
+
+	AddIdentifierInitialism(config.Go.Initialisms...)
+
 	g := &Generator{
 		knownTemplates: make(map[string]*template.Template),
 		t:              template.New("generator"),

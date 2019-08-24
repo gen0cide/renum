@@ -13,7 +13,6 @@ debug = false
 [updater]
   enabled = false
 
-
 [compression]
   compress = true
   method = "BestCompression"

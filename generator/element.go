@@ -1,6 +1,8 @@
 package generator
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Element represents a single, unique value within an enum that's being generated.
 type Element struct {
