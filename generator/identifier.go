@@ -10,6 +10,7 @@ import (
 
 var acronyms = []string{
 	"AMI",
+	"OSQuery",
 }
 
 func init() {
@@ -46,6 +47,16 @@ func (i Identifier) Pascal() string {
 // Screaming returns the identifiers SCREAMING_CASE representation.
 func (i Identifier) Screaming() string {
 	return strings.ToUpper(i.Snake())
+}
+
+// Command returns the identifiers command-case representation.
+func (i Identifier) Command() string {
+	return swag.ToCommandName(i.original)
+}
+
+// Camel returns the identifiers camelCase representation.
+func (i Identifier) Camel() string {
+	return swag.ToVarName(i.original)
 }
 
 // Ident returns the identifiers underlying flect structure.

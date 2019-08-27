@@ -5,7 +5,10 @@
 package {{.package}}
 
 import (
+		"errors"
     "fmt"
+		"unicode"
+		"unicode/utf8"
 )
 {{end -}}
 
@@ -21,7 +24,9 @@ const (
 {{ range $rIndex, $value := .config.Values }}
 	{{- $lastOffset := pluck "lastoffset" $vars | first }}{{ $offset := sub $value.Value $rIndex }}
 	{{ if eq $value.Pascal "_"}}// Skipped value{{else}}// {{$value.PrefixedPascal}} is an enum value for type {{$enumName}}.{{end}}
+	{{- if $value.Comment}}
 	// {{$value.Comment}}
+	{{- end}}
 	{{- if $value.Description}}
 	// {{$value.Description}}
 	{{- end}}
@@ -35,23 +40,60 @@ const (
 	_{{.config.EnumID}}PkgPath = `{{.config.Go.PackagePath}}`
 )
 
+var (
+	// ErrUndefined{{.config.EnumID}}EnumValue is thrown when Parse{{.config.EnumID}}(s string) cannot locate a valid enum for the provided string.
+	ErrUndefined{{.config.EnumID}}EnumValue = errors.New("cannot identify enum for provided value")
+)
+
 {{ template "stringer" . }}
 
 // Parse{{.config.EnumID}} attempts to convert a string to a {{.config.EnumID}}
 func Parse{{.config.EnumID}}(name string) ({{.config.EnumID}}, error) {
-	if x, ok := _{{.config.EnumID}}Value[name]; ok {
-		return x, nil
+	if len(name) < 1 {
+		return {{.config.EnumID}}(0), ErrUndefined{{.config.EnumID}}EnumValue
 	}
-	{{if .names -}}
-	return {{.config.EnumID}}(0), fmt.Errorf("%s is not a valid {{.config.EnumID}}, try [%s]", name, strings.Join(_{{.config.EnumID}}Names, ", "))
-	{{- else -}}
-	return {{.config.EnumID}}(0), fmt.Errorf("%s is not a valid {{.config.EnumID}}", name)
-	{{- end}}
+
+	first, _ := utf8.DecodeRuneInString(name)
+	if first == utf8.RuneError {
+		return {{.config.EnumID}}(0), ErrUndefined{{.config.EnumID}}EnumValue
+	}
+
+	switch {
+	case unicode.IsLower(first):
+		// test for snake_case
+		if x, ok := _{{.config.EnumID}}Value[name]; ok {
+			return x, nil
+		}
+
+		// test for command-case
+		if x, ok := _{{.config.EnumID}}CommandValue[name]; ok {
+			return x, nil
+		}
+
+		// test for camelCase
+		if x, ok := _{{.config.EnumID}}CamelValue[name]; ok {
+			return x, nil
+		}
+	case unicode.IsUpper(first):
+		// test for PascalCase
+		if x, ok := _{{.config.EnumID}}PascalValue[name]; ok {
+			return x, nil
+		}
+
+		// test for SCREAMING_CASE
+		if x, ok := _{{.config.EnumID}}ScreamingValue[name]; ok {
+			return x, nil
+		}
+	default:
+		return {{.config.EnumID}}(0), ErrUndefined{{.config.EnumID}}EnumValue
+	}
+
+	return {{.config.EnumID}}(0), ErrUndefined{{.config.EnumID}}EnumValue
 }
 
 {{ if .config.Plugins.Text }}
 // MarshalText implements the text marshaller method
-func (x *{{.config.EnumID}}) MarshalText() ([]byte, error) {
+func (x {{.config.EnumID}}) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
@@ -136,7 +178,7 @@ func (x {{.config.EnumID}}) Code() int {
 
 {{ if .config.Plugins.JSON }}
 // MarshalJSON implements the json.Marshaler interface.
-func (x *{{.config.EnumID}}) MarshalJSON() ([]byte, error) {
+func (x {{.config.EnumID}}) MarshalJSON() ([]byte, error) {
 	return json.Marshal(x.String())
 }
 
@@ -157,7 +199,7 @@ func (x *{{.config.EnumID}}) UnmarshalJSON(b []byte) error {
 
 {{ if .config.Plugins.YAML }}
 // MarshalYAML implements the yaml.Marshaler interface.
-func (x *{{.config.EnumID}}) MarshalYAML() (interface{}, error) {
+func (x {{.config.EnumID}}) MarshalYAML() (interface{}, error) {
 	return x.String(), nil
 }
 
@@ -180,11 +222,15 @@ func (x *{{.config.EnumID}}) UnmarshalYAML(unmarshal func(interface{}) error) er
 
 
 {{- define "stringer"}}
-const _{{.config.EnumID}}Name = "{{ underscore_stringify .config }}"
+const _{{.config.EnumID}}Name = "{{ stringify_underscore .config }}"
 
-{{- if .config.Plugins.Pascal }}
-const _{{.config.EnumID}}Titles = "{{ pascalize_stringify .config }}"
-{{- end }}
+const _{{.config.EnumID}}PascalName = "{{ stringify_pascal .config }}"
+
+const _{{.config.EnumID}}CamelName = "{{ stringify_camel .config }}"
+
+const _{{.config.EnumID}}ScreamingName = "{{ stringify_screaming .config }}"
+
+const _{{.config.EnumID}}CommandName = "{{ stringify_command .config }}"
 
 {{ if .names }}var _{{.config.EnumID}}Names = {{namify .config}}
 
@@ -194,16 +240,80 @@ func {{.config.EnumID}}Names() []string {
 	copy(tmp, _{{.config.EnumID}}Names)
 	return tmp
 }
+
+var _{{.config.EnumID}}ValueSlice = {{ valueify .config }}
+
+// {{.config.EnumID}}Values returns a list of possible enum values for the {{.config.EnumID}} type.
+func {{.config.EnumID}}Values() []{{.config.EnumID}} {
+	tmp := make([]{{.config.EnumID}}, len(_{{.config.EnumID}}ValueSlice))
+	copy(tmp, _{{.config.EnumID}}ValueSlice)
+	return tmp
+}
 {{ end -}}
 
+var _{{.config.EnumID}}Value = {{ unmapify .config .lowercase }}
+
+var _{{.config.EnumID}}PascalValue = {{ unmapify_pascal .config }}
+
+var _{{.config.EnumID}}CamelValue = {{ unmapify_camel .config }}
+
+var _{{.config.EnumID}}ScreamingValue = {{ unmapify_screaming .config }}
+
+var _{{.config.EnumID}}CommandValue = {{ unmapify_command .config }}
+
 var _{{.config.EnumID}}Map = {{ mapify .config }}
+
+var _{{.config.EnumID}}PascalMap = {{ mapify_pascal .config }}
+
+var _{{.config.EnumID}}CamelMap = {{ mapify_camel .config }}
+
+var _{{.config.EnumID}}ScreamingMap = {{ mapify_screaming .config }}
+
+var _{{.config.EnumID}}CommandMap = {{ mapify_command .config }}
 
 // String implements the Stringer interface.
 func (x {{.config.EnumID}}) String() string {
 	if str, ok := _{{.config.EnumID}}Map[x]; ok {
 		return str
 	}
-	return fmt.Sprintf("{{.config.EnumID}}(%d)", x)
+
+	return _{{.config.EnumID}}Map[{{.config.EnumID}}(0)]
+}
+
+// PascalCase returns the enum as a PascalCase string.
+func (x {{.config.EnumID}}) PascalCase() string {
+	if str, ok := _{{.config.EnumID}}PascalMap[x]; ok {
+		return str
+	}
+
+	return _{{.config.EnumID}}PascalMap[{{.config.EnumID}}(0)]
+}
+
+// CamelCase returns the enum as a cascalCase string.
+func (x {{.config.EnumID}}) CamelCase() string {
+	if str, ok := _{{.config.EnumID}}CamelMap[x]; ok {
+		return str
+	}
+
+	return _{{.config.EnumID}}CamelMap[{{.config.EnumID}}(0)]
+}
+
+// ScreamingCase returns the enum as a SCREAMING_CASE string.
+func (x {{.config.EnumID}}) ScreamingCase() string {
+	if str, ok := _{{.config.EnumID}}ScreamingMap[x]; ok {
+		return str
+	}
+
+	return _{{.config.EnumID}}ScreamingMap[{{.config.EnumID}}(0)]
+}
+
+// CommandCase returns the enum as a SCREAMING_CASE string.
+func (x {{.config.EnumID}}) CommandCase() string {
+	if str, ok := _{{.config.EnumID}}CommandMap[x]; ok {
+		return str
+	}
+
+	return _{{.config.EnumID}}CommandMap[{{.config.EnumID}}(0)]
 }
 
 var _{{.config.EnumID}}Kinds = {{ mapify_kinds .config }}
@@ -214,13 +324,7 @@ func (x {{.config.EnumID}}) Kind() string {
     return str
   }
 
-  {{if .unknown }}
-  if str, ok := _{{.config.EnumID}}Kinds[{{.config.EnumID}}Unknown]; ok {
-    return str
-  }
-  {{end}}
-
-  return fmt.Sprintf("{{.config.EnumID}}(%d)", x)
+  return _{{.config.EnumID}}Kinds[{{.config.EnumID}}(0)]
 }
 
 var _{{.config.EnumID}}Sources = {{ mapify_full_kinds .config }}
@@ -231,13 +335,7 @@ func (x {{.config.EnumID}}) Source() string {
     return str
   }
 
-  {{if .unknown }}
-  if str, ok := _{{.config.EnumID}}Sources[{{.config.EnumID}}Unknown]; ok {
-    return str
-  }
-  {{end}}
-
-  return fmt.Sprintf("{{.config.EnumID}}(%d)", x)
+  return _{{.config.EnumID}}Sources[{{.config.EnumID}}(0)]
 }
 
 var _{{.config.EnumID}}Paths = {{ mapify_full_paths .config }}
@@ -248,13 +346,7 @@ func (x {{.config.EnumID}}) Path() string {
     return str
   }
 
-  {{if .unknown }}
-  if str, ok := _{{.config.EnumID}}Paths[{{.config.EnumID}}Unknown]; ok {
-    return str
-  }
-  {{end}}
-
-  return fmt.Sprintf("{{.config.Plugins.Namespace.Namespace}}.{{.config.Go.Prefix.Snake }}_out_of_bounds_enum_%d", x)
+  return _{{.config.EnumID}}Paths[{{.config.EnumID}}(0)]
 }
 
 // PackageName returns the name of the parent package for this type.
@@ -277,8 +369,6 @@ func (x {{.config.EnumID}}) Namespace() string {
 }
 {{- end}}
 
-var _{{.config.EnumID}}Value = {{ unmapify .config .lowercase }}
-
 {{- if .config.Plugins.Description }}
 var _{{.config.EnumID}}Descriptions = {{ mapify_descriptions .config }}
 
@@ -288,13 +378,7 @@ func (x {{.config.EnumID}}) Description() string {
     return str
   }
 
-  {{if .unknown }}
-  if str, ok := _{{.config.EnumID}}Descriptions[{{.config.EnumID}}Unknown]; ok {
-    return str
-  }
-  {{end}}
-
-  return fmt.Sprintf("{{.config.EnumID}}(%d)", x)
+	return _{{.config.EnumID}}Descriptions[{{.config.EnumID}}(0)]
 }
 {{end}}
 
@@ -308,6 +392,11 @@ func (x {{.config.EnumID}}) ToYARPC() yarpcerrors.Code {
   }
 
   return yarpcerrors.CodeUnknown
+}
+
+// YARPCError implements the yarpcerrors.IsStatus() interface.
+func (x {{.config.EnumID}}) YARPCError() *yarpcerrors.Status {
+	return yarpcerrors.Newf(x.ToYARPC(), x.Error())
 }
 {{- end }}
 
@@ -346,7 +435,7 @@ func (x {{.config.EnumID}}) Message() string {
 		return str
 	}
 
-	return fmt.Sprintf("no message available for enum %s", x.String())
+	return _{{.config.EnumID}}Messages[{{.config.EnumID}}(0)]
 }
 
 var _{{.config.EnumID}}Errors = {{ mapify_error_messages .config }}
@@ -357,7 +446,7 @@ func (x {{.config.EnumID}}) Error() string {
 		return str
 	}
 
-	return fmt.Sprintf("%s.{{.config.Go.Prefix.Snake}}_%s (%d): %s", x.Namespace(), x.String(), x.Code(), x.Message())
+	return _{{.config.EnumID}}Errors[{{.config.EnumID}}(0)]
 }
 {{- end}}
 {{end}}

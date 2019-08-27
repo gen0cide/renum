@@ -1,5 +1,10 @@
 package renum
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Error allows types to conform to a strongly defined interface, as well as act as enriched error builtins.
 // The point of this is that as types that satisfy Error pass across package boundry, context and metadata
 // is not lost.
@@ -63,4 +68,110 @@ func ExtractErrorTypeInfo(e Error) ErrorTypeInfo {
 		Description: e.Description(),
 		Message:     e.Message(),
 	}
+}
+
+// IsError checks to see if an error is either a renum.Error or a *renum.WrappedError type.
+func IsError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if _, ok := err.(Error); ok {
+		return true
+	}
+
+	if _, ok := err.(*WrappedError); ok {
+		return true
+	}
+
+	return false
+}
+
+var undefinedMessage = `undefined enum value for type`
+var undefinedError = `cannot identify enum for provided value`
+
+// IsUndefinedEnumError is used to check if an error is because
+// an enum value was undefined.
+func IsUndefinedEnumError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if strings.Contains(err.Error(), undefinedError) {
+		return true
+	}
+
+	if strings.Contains(err.Error(), undefinedMessage) {
+		return true
+	}
+
+	if val, ok := err.(Error); ok {
+		if val.Code() == 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+// AsError attempts to extract a renum.Error type out of an error. That error can either be of type
+// renum.Error or *renum.WrappedError.
+func AsError(err error) (Error, bool) {
+	var e Error
+	if !IsError(err) {
+		return e, false
+	}
+
+	if werr, ok := err.(*WrappedError); ok {
+		return werr.Typed, true
+	}
+
+	if rerr, ok := err.(Error); ok {
+		return rerr, true
+	}
+
+	return e, false
+}
+
+// Wrap combines a renum.Error type as well as a standard library error in order to allow for
+// contextual information.
+func Wrap(e Error, err error) error {
+	return &WrappedError{
+		Typed:      e,
+		Attachment: err,
+	}
+}
+
+// WrappedError is used to sidecar a standard library error to a renum.Error in order to
+// enrich a renum.Error with additional context.
+type WrappedError struct {
+	Typed      Error
+	Attachment error
+}
+
+// Error implements the error interface.
+func (w *WrappedError) Error() string {
+	return fmt.Sprintf("%s (error=%v, type=%T)", w.Typed.Error(), w.Attachment, w.Attachment)
+}
+
+// Unwrap implements the xerrors.Wrapper interface.
+func (w *WrappedError) Unwrap() error {
+	return w.Attachment
+}
+
+// Is implements the xerrors interface.
+func (w *WrappedError) Is(e error) bool {
+	if e == nil {
+		return false
+	}
+
+	if werr, ok := e.(*WrappedError); ok {
+		return werr.Typed.Path() == w.Typed.Path()
+	}
+
+	if rerr, ok := e.(Error); ok {
+		return rerr.Path() == w.Typed.Path()
+	}
+
+	return e == w.Attachment
 }

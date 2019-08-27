@@ -25,8 +25,11 @@ var (
 )
 
 func addFuncs(fm template.FuncMap) template.FuncMap {
-	fm["underscore_stringify"] = UnderscoreStringify
-	fm["pascalize_stringify"] = PascalizeStringify
+	fm["stringify_underscore"] = StringifyUnderscore
+	fm["stringify_pascal"] = StringifyPascal
+	fm["stringify_camel"] = StringifyCamel
+	fm["stringify_screaming"] = StringifyScreaming
+	fm["stringify_command"] = StringifyCommand
 	fm["mapify_descriptions"] = MapifyDescriptions
 	fm["mapify_messages"] = MapifyMessages
 	fm["mapify_yarpc_codes"] = MapifyYARPCCodes
@@ -37,8 +40,17 @@ func addFuncs(fm template.FuncMap) template.FuncMap {
 	fm["mapify_kinds"] = MapifyKinds
 	fm["mapify_error_messages"] = MapifyErrorMessages
 	fm["mapify"] = Mapify
+	fm["mapify_pascal"] = MapifyPascal
+	fm["mapify_camel"] = MapifyCamel
+	fm["mapify_screaming"] = MapifyScreaming
+	fm["mapify_command"] = MapifyCommand
 	fm["unmapify"] = Unmapify
+	fm["unmapify_pascal"] = UnmapifyPascal
+	fm["unmapify_camel"] = UnmapifyCamel
+	fm["unmapify_screaming"] = UnmapifyScreaming
+	fm["unmapify_command"] = UnmapifyCommand
 	fm["namify"] = Namify
+	fm["valueify"] = Valueify
 	return fm
 }
 
@@ -124,14 +136,14 @@ func (g *Generator) Initialize() error {
 	g.Config.Go.Prefix = NewIdentifier(g.Config.Go.Name)
 
 	unknownVal := Element{
-		Ident:   NewIdentifier("unknown"),
-		Name:    "unknown",
+		Ident:   NewIdentifier("undefined_enum_value"),
+		Name:    "undefined_enum_value",
 		Value:   0,
 		Go:      g.Config.Go,
 		Plugins: g.Config.Plugins,
 	}
 
-	unknownVal.Message = fmt.Sprintf("unknown type for enum %s.%s", g.Config.Go.PackageName, g.Config.EnumID())
+	unknownVal.Message = fmt.Sprintf("undefined enum value for type %s.%s", g.Config.Go.PackageName, g.Config.EnumID())
 	unknownVal.Comment = fmt.Sprintf("%s is the default value for enum type %s. It is meant to be a placeholder and default for unknown values.", unknownVal.PrefixedPascal(), g.Config.EnumID())
 	unknownVal.Description = fmt.Sprintf("This value is a default placeholder for any unknown type for the %s.%s enum.", g.Config.Go.PackageName, g.Config.EnumID())
 
@@ -156,7 +168,7 @@ func (g *Generator) GenerateEnums() ([]byte, error) {
 	pkg := g.Config.Go.PackageName
 
 	vBuff := bytes.NewBuffer([]byte{})
-	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg})
+	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg, "config": g.Config})
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed writing header")
 	}

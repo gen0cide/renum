@@ -33,6 +33,16 @@ func (e Element) PrefixedScreaming() string {
 	return fmt.Sprintf("%s_%s", e.Go.Prefix.Screaming(), e.Screaming())
 }
 
+// Camel returns the enum's name in camelCase form.
+func (e Element) Camel() string {
+	return e.Ident.Camel()
+}
+
+// Command returns the enums name in command-case form.
+func (e Element) Command() string {
+	return e.Ident.Command()
+}
+
 // Snake returns the enum's name in snake_case form.
 func (e Element) Snake() string {
 	return e.Ident.Snake()

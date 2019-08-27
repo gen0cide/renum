@@ -45,8 +45,10 @@ func DefaultOSExitCode() int {
 	return _builtinOSExitCode
 }
 
-// UnderscoreStringify returns a string that is all of the enum value names concatenated without a separator, in snake_case.
-func UnderscoreStringify(c Config) (ret string, err error) {
+// StringifyUnderscore returns a string that is all of the enum value names concatenated without a separator, in snake_case.
+// EXAMPLE ENUM NAME: query_prod_database
+// RESULT: query_prod_database
+func StringifyUnderscore(c Config) (ret string, err error) {
 	for _, val := range c.Values {
 		if val.Pascal() != skipHolder {
 			ret += val.Snake()
@@ -55,8 +57,46 @@ func UnderscoreStringify(c Config) (ret string, err error) {
 	return
 }
 
-// PascalizeStringify returns a string that is all of the enum value names as Pascalized strings concatenated without a separator.
-func PascalizeStringify(c Config) (ret string, err error) {
+// StringifyCamel returns a string that is all of the enum value names concatenated without a separator, in camelCase.
+// EXAMPLE ENUM NAME: query_prod_database
+// RESULT: queryProdDatabase
+func StringifyCamel(c Config) (ret string, err error) {
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			ret += val.Camel()
+		}
+	}
+	return
+}
+
+// StringifyScreaming returns a string that is all of the enum value names concatenated without a separator, in SCREAMING_CASE.
+// EXAMPLE ENUM NAME: query_prod_database
+// RESULT: QUERY_PROD_DATABASE
+func StringifyScreaming(c Config) (ret string, err error) {
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			ret += val.Screaming()
+		}
+	}
+	return
+}
+
+// StringifyCommand returns a string that is all of the enum value names concatenated without a separator, in command-case.
+// EXAMPLE ENUM NAME: query_prod_database
+// RESULT: query-prod-database
+func StringifyCommand(c Config) (ret string, err error) {
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			ret += val.Command()
+		}
+	}
+	return
+}
+
+// StringifyPascal returns a string that is all of the enum value names as Pascalized strings concatenated without a separator.
+// EXAMPLE ENUM NAME: query_prod_database
+// RESULT: QueryProdDatabase
+func StringifyPascal(c Config) (ret string, err error) {
 	for _, val := range c.Values {
 		if val.Pascal() != skipHolder {
 			ret += val.Pascal()
@@ -194,6 +234,70 @@ func Mapify(c Config) (ret string, err error) {
 	return
 }
 
+// MapifyPascal returns a map that is all of the indexes for returning an enum's PascalCase representation.
+func MapifyPascal(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sPascalName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[%s]string{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Pascal())
+			ret = fmt.Sprintf("%s%d: %s[%d:%d],\n", ret, val.Value, strName, index, nextIndex)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
+// MapifyCamel returns a map that is all of the indexes for returning an enum's camelCase representation.
+func MapifyCamel(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sCamelName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[%s]string{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Camel())
+			ret = fmt.Sprintf("%s%d: %s[%d:%d],\n", ret, val.Value, strName, index, nextIndex)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
+// MapifyScreaming returns a map that is all of the indexes for returning an enum's SCREAMING_CASE representation.
+func MapifyScreaming(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sScreamingName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[%s]string{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Screaming())
+			ret = fmt.Sprintf("%s%d: %s[%d:%d],\n", ret, val.Value, strName, index, nextIndex)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
+// MapifyCommand returns a map that is all of the indexes for returning an enum's command-case representation.
+func MapifyCommand(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sCommandName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[%s]string{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Command())
+			ret = fmt.Sprintf("%s%d: %s[%d:%d],\n", ret, val.Value, strName, index, nextIndex)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
 // Unmapify returns a map that is all of the indexes for a string value lookup
 func Unmapify(c Config, lowercase bool) (ret string, err error) {
 	strName := fmt.Sprintf(`_%sName`, c.Go.Prefix.Pascal())
@@ -213,6 +317,70 @@ func Unmapify(c Config, lowercase bool) (ret string, err error) {
 	return
 }
 
+// UnmapifyPascal returns a map that is all of the indexes for an enum value's PascalCase value.
+func UnmapifyPascal(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sPascalName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[string]%s{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Pascal())
+			ret = fmt.Sprintf("%s%s[%d:%d]: %d,\n", ret, strName, index, nextIndex, val.Value)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
+// UnmapifyCamel returns a map that is all of the indexes for an enum value's camelCase value.
+func UnmapifyCamel(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sCamelName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[string]%s{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Camel())
+			ret = fmt.Sprintf("%s%s[%d:%d]: %d,\n", ret, strName, index, nextIndex, val.Value)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
+// UnmapifyScreaming returns a map that is all of the indexes for an enum value's SCREAMING_CASE value.
+func UnmapifyScreaming(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sScreamingName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[string]%s{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Screaming())
+			ret = fmt.Sprintf("%s%s[%d:%d]: %d,\n", ret, strName, index, nextIndex, val.Value)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
+// UnmapifyCommand returns a map that is all of the indexes for an enum value's command-case value.
+func UnmapifyCommand(c Config) (ret string, err error) {
+	strName := fmt.Sprintf(`_%sCommandName`, c.Go.Prefix.Pascal())
+	ret = fmt.Sprintf("map[string]%s{\n", c.Go.Prefix.Pascal())
+	index := 0
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			nextIndex := index + len(val.Command())
+			ret = fmt.Sprintf("%s%s[%d:%d]: %d,\n", ret, strName, index, nextIndex, val.Value)
+			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
 // Namify returns a slice that is all of the possible names for an enum in a slice
 func Namify(c Config) (ret string, err error) {
 	strName := fmt.Sprintf(`_%sName`, c.Go.Prefix.Pascal())
@@ -223,6 +391,18 @@ func Namify(c Config) (ret string, err error) {
 			nextIndex := index + len(val.Snake())
 			ret = fmt.Sprintf("%s%s[%d:%d],\n", ret, strName, index, nextIndex)
 			index = nextIndex
+		}
+	}
+	ret += _finishBrace
+	return
+}
+
+// Valueify creates a slice of enum values.
+func Valueify(c Config) (ret string, err error) {
+	ret = fmt.Sprintf("[]%s{\n", c.EnumID())
+	for _, val := range c.Values {
+		if val.Pascal() != skipHolder {
+			ret = fmt.Sprintf("%s%s,\n", ret, val.PrefixedPascal())
 		}
 	}
 	ret += _finishBrace
