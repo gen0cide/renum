@@ -114,6 +114,21 @@ func IsUndefinedEnumError(err error) bool {
 	return false
 }
 
+var undefinedValue = `undefined_enum_value`
+
+// IsUndefined is used to check if an enum value is undefined.
+func IsUndefined(e Enum) bool {
+	if e.String() == undefinedValue {
+		return true
+	}
+
+	if e.Code() == 0 {
+		return true
+	}
+
+	return false
+}
+
 // AsError attempts to extract a renum.Error type out of an error. That error can either be of type
 // renum.Error or *renum.WrappedError.
 func AsError(err error) (Error, bool) {
