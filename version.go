@@ -2,10 +2,10 @@ package renum
 
 var (
 	// Version describes the version of the library.
-	Version = `0.0.2`
+	Version = `0.0.6`
 
 	// Build describes the git revision for this build.
-	Build = ``
+	Build = `b3fac17`
 )
 
 // VersionString returns the renum library version, using semantic versioning (https://semver.org)
