@@ -1,0 +1,76 @@
+run:
+  deadline: 3m
+  skip-dirs:
+    - "vendor"
+    - "generator/static"
+  tests: false
+  skip-files:
+    - ".*generated_.*types\\.go$"
+linters:
+  disable-all: true
+  enable:
+    - deadcode
+    - dupl
+    - errcheck
+    - goconst
+    - gocritic
+    - gocyclo
+    - goimports
+    - golint
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - maligned
+    - nakedret
+    - prealloc
+    - scopelint
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+linter-settings:
+  dupl:
+    threshold: 100
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    ignore: "fmt:.*,io/ioutil:^Read.*,pp:.*"
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - performance
+      - style
+      # - expirimental
+      # - opinionated
+    disabled-checks:
+      - wrapperFunc
+      - regexpMust
+    settings:
+      captLocal:
+        paramsOnly: true
+      rangeValCopy:
+        sizeThreshold: 32
+  gocyclo:
+    min-complexity: 20
+  golint:
+    min-confidence: 0.7
+  govet:
+    check-shadowing: true
+  maligned:
+    suggest-new: true
+  nakedret:
+    max-func-lines: 50
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
+issues:
+  exclude-use-default: false

@@ -147,6 +147,15 @@ func (x ErrorCode) String() string {
 	return _ErrorCodeMap[ErrorCode(0)]
 }
 
+// SnakeCase returns the enum as a snake_case string.
+func (x ErrorCode) SnakeCase() string {
+	if str, ok := _ErrorCodeMap[x]; ok {
+		return str
+	}
+
+	return _ErrorCodeMap[ErrorCode(0)]
+}
+
 // PascalCase returns the enum as a PascalCase string.
 func (x ErrorCode) PascalCase() string {
 	if str, ok := _ErrorCodePascalMap[x]; ok {

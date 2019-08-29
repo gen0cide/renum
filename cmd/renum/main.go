@@ -68,7 +68,7 @@ var globalFlags = []cli.Flag{
 var app = &cli.App{
 	Name:        "renum",
 	Usage:       "Generates customizable enums for Golang.",
-	Version:     renum.Version,
+	Version:     renum.VersionString(),
 	Description: "Renum generates idomatic const enums for Golang, based on definitions configured in a YAML file.",
 	Authors: []*cli.Author{
 		&cli.Author{

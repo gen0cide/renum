@@ -9,6 +9,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/gen0cide/renum"
+
 	"github.com/Masterminds/sprig"
 	"github.com/gen0cide/renum/generator/static"
 	"github.com/pkg/errors"
@@ -168,7 +170,7 @@ func (g *Generator) GenerateEnums() ([]byte, error) {
 	pkg := g.Config.Go.PackageName
 
 	vBuff := bytes.NewBuffer([]byte{})
-	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg, "config": g.Config})
+	err := g.t.ExecuteTemplate(vBuff, "header", map[string]interface{}{"package": pkg, "config": g.Config, "version": renum.VersionString()})
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed writing header")
 	}

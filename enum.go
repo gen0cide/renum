@@ -10,10 +10,21 @@ import (
 // good cross-package interoperability. This creates enums that play nice
 // with things like loggers and metrics emitters.
 type Enum interface {
+	// Requires enums to be able to describe their underlying integer representation.
 	Coder
+
+	// Requires enums to be uniquely identifiable with namespace and path values.
 	Namespacer
+
+	// Requires enums to describe their type semantics relating to source code.
 	Typer
+
+	// Requires enums to describe themselves in detail, upon request.
 	Descriptioner
+
+	// Requires enums to describe their names in multiple
+	// string case semantics.
+	Caser
 
 	// fmt.Print handling
 	fmt.Stringer

@@ -1,7 +1,10 @@
 package renum
 
 import (
+	"encoding/json"
 	"fmt"
+
+	"go.uber.org/yarpc/yarpcerrors"
 
 	"golang.org/x/xerrors"
 )
@@ -48,6 +51,10 @@ type Wrapped interface {
 
 	// implements the github.com/uber-go/multierr.errorGroup interface.
 	Errors() []error
+
+	// implements the go.uber.org/yarpc/yarpcerrors interface for creating
+	// custom YARPC errors.
+	YARPCError() *yarpcerrors.Status
 }
 
 // WrappedError is used to sidecar a standard library error to a renum.Error in order to
@@ -146,4 +153,69 @@ func (w *wrapped) Errors() []error {
 	}
 
 	return ret
+}
+
+var _builtinYARPCCode = yarpcerrors.CodeUnknown
+
+// YARPCError is used by YARPC to ensure a wrapped error retains wrapped context information
+// as the error is returned to the caller across the network. YARPCError attempt to extract the
+// first yarpcerrors.Code (provided one of the errors if of type renum.YARPCError) and override
+// the default (2=CodeUnknown). It will used the renum.Wrapped Typed() (top level renum.Error)
+// for the message and name fields, with the name field being displayed in command-case (as per spec).
+// The resulting structure will look like this on the wire:
+//
+//  {
+//  	"code" 2,
+//  	"name": "cant-do-that",
+//  	"message": "example.namespace.path.err_cant_do_that (2): example error message",
+//  	"details": "[...JSON string...]"
+//  }
+//
+// You can use yarpcerrors.FromError(err error) to turn your returned RPC caller's error back into
+// a *yarpcerrors.Status, and subsequently pass that to ExtractErrorsFromYARPCStatus to get
+// the detailed information that was embedded in the details field.
+func (w *wrapped) YARPCError() *yarpcerrors.Status {
+	errs := w.Errors()
+	errcode := _builtinYARPCCode
+	typedErr := w.Typed()
+	for _, x := range errs {
+		if yerr, ok := x.(YARPCError); ok {
+			errcode = yerr.ToYARPC()
+			break
+		}
+	}
+
+	ret := yarpcerrors.Newf(errcode, "%s", typedErr.Error())
+	if ret == nil {
+		return nil
+	}
+
+	detailBytes, err := json.Marshal(extractTypeInfoFromList(errs...))
+	if err != nil {
+		return ret
+	}
+
+	return ret.WithDetails(detailBytes)
+}
+
+// ExtractErrorsFromYARPCStatus is a helper method to read in a YARPC Status has been transmitted
+// across application boundries and attempts to unpack an error stack of the foreign services
+// wrapped errors. Note that this should *not* be used to programmatically type check errors, but
+// rather in presenting the remote error's contexts in ways that are easily formatted for a user.
+func ExtractErrorsFromYARPCStatus(status *yarpcerrors.Status) ([]ErrorTypeInfo, bool) {
+	var ret []ErrorTypeInfo
+	if status == nil {
+		return ret, false
+	}
+
+	if status.Details() == nil {
+		return ret, false
+	}
+
+	err := json.Unmarshal(status.Details(), &ret)
+	if err != nil {
+		return ret, false
+	}
+
+	return ret, true
 }

@@ -5,6 +5,7 @@ import "go.uber.org/yarpc/yarpcerrors"
 // YARPCResponder allows a type to define a specified YARPC error code so that a handler can
 // automatically act on it's behalf without having to maintain a separate mapping.
 type YARPCResponder interface {
+	ToYARPC() yarpcerrors.Code
 	YARPCError() *yarpcerrors.Status
 }
 
