@@ -1,0 +1,29 @@
+go:
+  name: ErrTest
+  package_name: renum
+  package_path: github.com/gen0cide/renum
+plugins:
+  error: true
+  text: true
+  json: true
+  yaml: true
+  sql: true
+  description: true
+  codes:
+    yarpc: true
+    http: true
+    os_exit: true
+    defaults:
+      yarpc: 13
+      http: 500
+      os_exit: 1
+values:
+  - name: foo
+    message: renum error of type foo
+    description: ErrTestFoo is thrown as part of a unit test for the github.com/gen0cide/renum package and should not be used for any other purpose.
+  - name: bar
+    message: renum error of type bar
+    description: ErrTestBar is thrown as part of a unit test for the github.com/gen0cide/renum package and should not be used for any other purpose.
+  - name: baz
+    message: renum error of type baz
+    description: ErrTestBaz is thrown as part of a unit test for the github.com/gen0cide/renum package and should not be used for any other purpose.
