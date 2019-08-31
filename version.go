@@ -5,7 +5,7 @@ var (
 	Version = `0.0.7`
 
 	// Build describes the git revision for this build.
-	Build = `c805e71`
+	Build = `9b64a74`
 )
 
 // VersionString returns the renum library version, using semantic versioning (https://semver.org)
