@@ -10,26 +10,29 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/dixonwille/wlog"
+
 	"github.com/gen0cide/renum"
+	"github.com/gen0cide/renum/generator/config"
+
+	"gopkg.in/urfave/cli.v2"
 
 	"github.com/gen0cide/renum/generator"
-	"gopkg.in/urfave/cli.v2"
 )
 
 var ui wlog.UI
-var fileConfig generator.Config
-var cliConfig generator.Config
+var fileConfig config.Config
+var cliConfig config.Config
 
 func init() {
 	baseUI := wlog.New(os.Stdin, os.Stdout, os.Stderr)
 	prefixedUI := wlog.AddPrefix("[?]", "["+wlog.Cross+"]", "[+]", "", "", "[~]", "["+wlog.Check+"]", "[!]", baseUI)
 	colorUI := wlog.AddColor(wlog.BrightCyan, wlog.BrightRed, wlog.BrightWhite, wlog.BrightBlue, wlog.None, wlog.None, wlog.BrightMagenta, wlog.BrightGreen, wlog.BrightYellow, prefixedUI)
 	ui = wlog.AddConcurrent(colorUI)
-	fc, err := generator.NewConfig()
+	fc, err := config.NewConfig()
 	if err != nil {
 		panic(err)
 	}
-	cc, err := generator.NewConfig()
+	cc, err := config.NewConfig()
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +74,7 @@ var app = &cli.App{
 	Version:     renum.VersionString(),
 	Description: "Renum generates idomatic const enums for Golang, based on definitions configured in a YAML file.",
 	Authors: []*cli.Author{
-		&cli.Author{
+		{
 			Name:  "Alex Levinson",
 			Email: "gen0cide.threats@gmail.com",
 		},
@@ -81,7 +84,7 @@ var app = &cli.App{
 	Writer:    os.Stdout,
 	ErrWriter: os.Stderr,
 	Commands: []*cli.Command{
-		&cli.Command{
+		{
 			Name: "generate",
 			Aliases: []string{
 				"g",
@@ -92,7 +95,7 @@ var app = &cli.App{
 			Action:      generate,
 			Flags:       flagOverrides(),
 		},
-		&cli.Command{
+		{
 			Name: "test",
 			Aliases: []string{
 				"t",

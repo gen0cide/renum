@@ -10,14 +10,13 @@ linters:
   disable-all: true
   enable:
     - deadcode
-    - dupl
     - errcheck
     - goconst
     - gocritic
     - gocyclo
     - goimports
     - golint
-    - gosec
+    - gofmt
     - gosimple
     - govet
     - ineffassign

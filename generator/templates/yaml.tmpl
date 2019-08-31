@@ -1,0 +1,20 @@
+// MarshalYAML implements the yaml.Marshaler interface.
+func (x {{.EnumID}}) MarshalYAML() (interface{}, error) {
+  return x.String(), nil
+}
+
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
+func (x *{{.EnumID}}) UnmarshalYAML(unmarshal func(interface{}) error) error {
+  var s string
+  if err := unmarshal(&s); err != nil {
+    return fmt.Errorf("error unmarshaling YAML value: %v", err)
+  }
+
+  tmp, err := Parse{{.EnumID}}(s)
+  if err != nil {
+    return err
+  }
+
+  *x = tmp
+  return nil
+}

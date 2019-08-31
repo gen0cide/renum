@@ -1,0 +1,14 @@
+const _{{.EnumID}}PascalName = "{{ stringify . }}"
+
+var _{{.EnumID}}PascalValue = {{ unmapify . }}
+
+var _{{.EnumID}}PascalMap = {{ mapify . }}
+
+// PascalCase returns the enum as a PascalCase string.
+func (x {{.EnumID}}) PascalCase() string {
+  if str, ok := _{{.EnumID}}PascalMap[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}PascalMap[{{.EnumID}}(0)]
+}

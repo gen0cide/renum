@@ -1,0 +1,14 @@
+const _{{.EnumID}}ScreamingName = "{{ stringify . }}"
+
+var _{{.EnumID}}ScreamingValue = {{ unmapify . }}
+
+var _{{.EnumID}}ScreamingMap = {{ mapify . }}
+
+// ScreamingCase returns the enum as a SCREAMING_CASE string.
+func (x {{.EnumID}}) ScreamingCase() string {
+  if str, ok := _{{.EnumID}}ScreamingMap[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}ScreamingMap[{{.EnumID}}(0)]
+}

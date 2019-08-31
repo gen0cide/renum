@@ -1,0 +1,14 @@
+const _{{.EnumID}}Name = _{{.EnumID}}SnakeName
+
+var _{{.EnumID}}Value = _{{.EnumID}}SnakeValue
+
+var _{{.EnumID}}Map = _{{.EnumID}}SnakeMap
+
+// String implements the Stringer interface.
+func (x {{.EnumID}}) String() string {
+if str, ok := _{{.EnumID}}Map[x]; ok {
+return str
+}
+
+return _{{.EnumID}}Map[{{.EnumID}}(0)]
+}

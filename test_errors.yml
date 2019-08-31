@@ -1,5 +1,6 @@
 go:
   name: ErrTest
+  comment: ErrTest is a type that is used to validate that renum's error wrapping library functions as intended.
   package_name: renum
   package_path: github.com/gen0cide/renum
 plugins:

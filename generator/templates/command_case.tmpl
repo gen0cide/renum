@@ -1,0 +1,14 @@
+const _{{.EnumID}}CommandName = "{{ stringify . }}"
+
+var _{{.EnumID}}CommandValue = {{ unmapify . }}
+
+var _{{.EnumID}}CommandMap = {{ mapify . }}
+
+// CommandCase returns the enum as a command-case string.
+func (x {{.EnumID}}) CommandCase() string {
+  if str, ok := _{{.EnumID}}CommandMap[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}CommandMap[{{.EnumID}}(0)]
+}

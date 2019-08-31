@@ -1,0 +1,8 @@
+var _{{.EnumID}}Names = {{ namify . }}
+
+// {{.EnumID}}Names returns a list of possible string values of {{.EnumID}}.
+func {{.EnumID}}Names() []string {
+  tmp := make([]string, len(_{{.EnumID}}Names))
+  copy(tmp, _{{.EnumID}}Names)
+  return tmp
+}

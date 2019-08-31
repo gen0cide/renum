@@ -1,0 +1,10 @@
+var _{{.EnumID}}Messages = {{ mapify . }}
+
+// Message returns the enum short message description.
+func (x {{.EnumID}}) Message() string {
+  if str, ok := _{{.EnumID}}Messages[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}Messages[{{.EnumID}}(0)]
+}

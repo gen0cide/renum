@@ -1,7 +1,13 @@
-package generator
+package config
 
 import (
 	"fmt"
+)
+
+var (
+	_builtinYARPCCode  = 2
+	_builtinHTTPCode   = 520
+	_builtinOSExitCode = 1
 )
 
 // Element represents a single, unique value within an enum that's being generated.

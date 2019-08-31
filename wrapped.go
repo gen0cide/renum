@@ -34,25 +34,25 @@ type Wrapped interface {
 	// Typed returns the renum.Err typed error for this wrapped error.
 	Typed() Error
 
-	// implements github.com/pkg/errors.Causer interface
+	// Cause implements github.com/pkg/errors.Causer interface
 	Cause() error
 
-	// implements the golang.org/x/xerrors.Wrapper interface.
+	// Unwrap implements the golang.org/x/xerrors.Wrapper interface.
 	Unwrap() error
 
-	// implements the golang.org/x/xerrors.Is interface.
+	// Is implements the golang.org/x/xerrors.Is interface.
 	Is(e error) bool
 
-	// implements fmt.Formatter interface (old error handling)
+	// Format implements fmt.Formatter interface (old error handling)
 	Format(f fmt.State, c rune)
 
-	// implements golang.org/x/xerrors.Formatter interface (new error handling)
+	// FormatError implements golang.org/x/xerrors.Formatter interface (new error handling)
 	FormatError(p xerrors.Printer) error
 
-	// implements the github.com/uber-go/multierr.errorGroup interface.
+	// Errors implements the github.com/uber-go/multierr.errorGroup interface.
 	Errors() []error
 
-	// implements the go.uber.org/yarpc/yarpcerrors interface for creating
+	// YARPCError implements the go.uber.org/yarpc/yarpcerrors interface for creating
 	// custom YARPC errors.
 	YARPCError() *yarpcerrors.Status
 }
@@ -91,17 +91,17 @@ func (w *wrapped) Is(e error) bool {
 	return false
 }
 
-// implements github.com/pkg/errors.Causer interface.
+// Cause implements github.com/pkg/errors.Causer interface.
 func (w *wrapped) Cause() error {
 	return w.Attachment
 }
 
-// implements fmt.Formatter
+// Format implements fmt.Formatter
 func (w *wrapped) Format(f fmt.State, c rune) {
 	xerrors.FormatError(w, f, c)
 }
 
-// implements xerrors.Formatter
+// FormatError implements xerrors.Formatter
 func (w *wrapped) FormatError(p xerrors.Printer) error {
 	p.Print(w.Error())
 	return nil

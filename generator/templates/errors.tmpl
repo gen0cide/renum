@@ -1,0 +1,10 @@
+var _{{.EnumID}}Errors = {{ mapify . }}
+
+// Error implements the error interface.
+func (x {{.EnumID}}) Error() string {
+  if str, ok := _{{.EnumID}}Errors[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}Errors[{{.EnumID}}(0)]
+}

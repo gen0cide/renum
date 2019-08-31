@@ -1,0 +1,10 @@
+var _{{.EnumID}}HTTPCodes = {{ mapify . }}
+
+// ToHTTP implements the renum.HTTPResponder interface.
+func (x {{.EnumID}}) ToHTTP() int {
+  if c, ok := _{{.EnumID}}HTTPCodes[x]; ok {
+    return c
+  }
+
+  return 520
+}

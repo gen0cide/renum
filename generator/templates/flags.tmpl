@@ -1,0 +1,24 @@
+// Set implements the Golang flag.Value interface and allows command line flags that are bound to {{.EnumID}} types
+// to automatically support string representations for value assignment. This follows the semantics of Parse{{.EnumID}}
+// and thus can be flexible for how the string should be cased, etc. If an appropriate value cannot be identified,
+// it will return an error.
+func (x *{{.EnumID}}) Set(val string) error {
+  v, err := Parse{{.EnumID}}(val)
+  if err != nil {
+    return err
+  }
+
+  // all good, set the value!
+  *x = v
+  return nil
+}
+
+// Get implements the Golang flag.Getter interface and allows for the value of flag.Value to be retrieved
+// by the flag package for various reasons.
+func (x *{{.EnumID}}) Get() interface{} {
+  if x == nil {
+    return nil
+  }
+
+  return *x
+}

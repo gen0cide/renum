@@ -4,6 +4,7 @@ package renum
 // understand their location within Go source.
 type Typer interface {
 	Kind() string
+	Type() string
 	Source() string
 	PackageName() string
 	ImportPath() string

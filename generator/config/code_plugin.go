@@ -1,4 +1,4 @@
-package generator
+package config
 
 // CodePlugins hold the configuration around which templates should be run.
 type CodePlugins struct {

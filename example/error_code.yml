@@ -1,6 +1,7 @@
 # Enum configuration
 go:
   name: ErrorCode
+  comment: ErrorCode is an example error type that is used to demonstrate how renum's enum generator works.
   package_name: lib
   package_path: github.com/gen0cide/renum/example/lib
 plugins:
@@ -9,6 +10,7 @@ plugins:
   json: true
   yaml: true
   sql: true
+  flags: true
   description: true
 values:
   - name: unauthorized
@@ -18,4 +20,4 @@ values:
   - name: invalid_sql_query
     message: provided query was not valid sql
     comment: InvalidSQLQuery is thrown when a user supplied SQL query is not valid.
-    description: INVALIDSQLQuery often means the caller should perform further validation in order to locate situations where they're taking unsanitized input from users and interpolating that value directly into the SQL query.
+    description: InvalidSQLQuery often means the caller should perform further validation in order to locate situations where they're taking unsanitized input from users and interpolating that value directly into the SQL query.

@@ -1,0 +1,10 @@
+var _{{.EnumID}}OSExitCodes = {{ mapify . }}
+
+// ToHTTP implements the emitter.HTTPResponder interface.
+func (x {{.EnumID}}) ToOSExit() int {
+  if c, ok := _{{.EnumID}}OSExitCodes[x]; ok {
+    return c
+  }
+
+  return 1
+}

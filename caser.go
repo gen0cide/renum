@@ -5,18 +5,18 @@ package renum
 // as various text casings. This is helpful in situations where there are character
 // restrictions that are enforced.
 type Caser interface {
-	// snake_case
+	// SnakeCase should return enum names formatted as "snake_case" representations
 	SnakeCase() string
 
-	// PascalCase
+	// PascalCase should return enum names formatted as "PascalCase" representations
 	PascalCase() string
 
-	// camelCase
+	// CamelCase should return enum names formatted as "camelCase" representations
 	CamelCase() string
 
-	// SCREAMING_CASE
+	// ScreamingCase should return enum names formatted as "SCREAMING_CASE" representations
 	ScreamingCase() string
 
-	// command-case
+	// CommandCase should return enum names formatted as "command-case" representations
 	CommandCase() string
 }

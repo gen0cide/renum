@@ -1,4 +1,4 @@
-package generator
+package config
 
 // DocConfig holds information about the docs automatic generation plugin. (unused currently, work in progress).
 type DocConfig struct {

@@ -1,0 +1,18 @@
+// MarshalText implements the encoding.TextMarshaler interface and allows {{.EnumID}} values
+// to be encoded to text, supporting any format that uses encoding.TextMarshaler under the hood.
+func (x {{.EnumID}}) MarshalText() ([]byte, error) {
+    return []byte(x.String()), nil
+}
+
+// UnmarshalText implements the encoding.TextUnmarshaler interface and allows {{.EnumID}} values
+// to be decoded from anything using this generic interface.
+func (x *{{.EnumID}}) UnmarshalText(text []byte) error {
+    name := string(text)
+    tmp, err := Parse{{.EnumID}}(name)
+    if err != nil {
+        return err
+    }
+
+    *x = tmp
+    return nil
+}

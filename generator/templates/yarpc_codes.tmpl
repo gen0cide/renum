@@ -1,0 +1,15 @@
+var _{{.EnumID}}YARPCCodes = {{ mapify . }}
+
+// ToYARPC implements the emitter.YARPCResponder interface.
+func (x {{.EnumID}}) ToYARPC() yarpcerrors.Code {
+  if c, ok := _{{.EnumID}}YARPCCodes[x]; ok {
+    return c
+  }
+
+  return yarpcerrors.CodeUnknown
+}
+
+// YARPCError implements the yarpcerrors.IsStatus() interface.
+func (x {{.EnumID}}) YARPCError() *yarpcerrors.Status {
+  return yarpcerrors.Newf(x.ToYARPC(), x.Error())
+}

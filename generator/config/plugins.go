@@ -1,4 +1,4 @@
-package generator
+package config
 
 // PluginConfig holds the switches to define which templates will get rendered in the final code.
 type PluginConfig struct {

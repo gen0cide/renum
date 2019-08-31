@@ -1,0 +1,58 @@
+// Scan implements the sql.Scanner interface and allows for translating database results into {{.EnumID}} values.
+// This does a best effort to match whatever might be returned (integer values, strings, or bytes) into a matching
+// value, and follows the semantics of Parse{{.EnumID}}.
+func (x *{{.EnumID}}) Scan(value interface{}) error {
+  var name string
+
+  // handle the various types for the value that could be provided to us
+  switch v := value.(type) {
+  case string:
+    name = v
+  case []byte:
+    name = string(v)
+  case int8:
+    name = strconv.FormatInt(int64(v), 10)
+  case int16:
+    name = strconv.FormatInt(int64(v), 10)
+  case int32:
+    name = strconv.FormatInt(int64(v), 10)
+  case int:
+    name = strconv.FormatInt(int64(v), 10)
+  case int64:
+    name = strconv.FormatInt(v, 10)
+  case uint8:
+    name = strconv.FormatUint(uint64(v), 10)
+  case uint16:
+    name = strconv.FormatUint(uint64(v), 10)
+  case uint32:
+    name = strconv.FormatUint(uint64(v), 10)
+  case uint64:
+    name = strconv.FormatUint(v, 10)
+  case uint:
+    name = strconv.FormatUint(uint64(v), 10)
+  case nil:
+    *x = {{.EnumID}}(0)
+    return nil
+  case fmt.Stringer:
+    name = v.String()
+  default:
+    return ErrUndefined{{.EnumID}}EnumValue
+  }
+
+  // try and lookup the the value
+  tmp, err := Parse{{.EnumID}}(name)
+  if err != nil {
+    return err
+  }
+
+  // assign it to ourselves
+  *x = tmp
+  return nil
+}
+
+// Value implements the driver.Valuer interface to enable automatic conversion of renum.Enum values into
+// database types. By default, this is done with as a snake_case string to support as many database
+// implementations as possible. If you wish to optimize to integers or other types, implement a wrapper type.
+func (x {{.EnumID}}) Value() (driver.Value, error) {
+  return x.String(), nil
+}

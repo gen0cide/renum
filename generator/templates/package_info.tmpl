@@ -1,0 +1,20 @@
+const (
+  _{{.EnumID}}Namespace = `{{.Plugins.Namespace.Namespace}}`
+  _{{.EnumID}}PkgName = `{{.Go.PackageName}}`
+  _{{.EnumID}}PkgPath = `{{.Go.PackagePath}}`
+)
+
+// Namespace implements renum.Namespacer interface.
+func (x {{.EnumID}}) Namespace() string {
+  return _{{.EnumID}}Namespace
+}
+
+// PackageName returns the name of the parent package for this type.
+func (x {{.EnumID}}) PackageName() string {
+  return _{{.EnumID}}PkgName
+}
+
+// ImportPath returns the full import path of the parent package
+func (x {{.EnumID}}) ImportPath() string {
+  return _{{.EnumID}}PkgPath
+}

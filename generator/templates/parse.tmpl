@@ -1,0 +1,76 @@
+var (
+    // ErrUndefined{{.EnumID}}EnumValue is thrown when Parse{{.EnumID}}(s string) cannot locate a valid enum for the provided string.
+    ErrUndefined{{.EnumID}}EnumValue = errors.New("cannot identify enum for provided value")
+)
+
+// Parse{{.EnumID}} attempts to convert a string identifier to it's corrasponding {{.EnumID}} value, returning
+// an error if it cannot match the string to a known enum value. This function supports multiple casings including:
+// snake_case, PascalCase, camelCase, SCREAMING_CASE, and command-case. Generally, snake_case is the preferred method
+// as most Marshalers will marshal to snake_case, and this function optimizes for it, but Parse{{.EnumID}} attempts to
+// be flexible.
+//
+// In the event Parse{{.EnumID}} cannot identify a matching value, it will return the default {{.EnumID}} value (0)
+// along with an ErrUndefined{{.EnumID}}EnumValue error. This will also be the return should you provide either an empty
+// string or a string that doesn't contain a valid UTF-8 alpha character as the first rune in the string. There are
+// two exceptions to this rule:
+//
+//  * The string has leading is whitespace in which case Parse{{.EnumID}} will detect, trim, and attempt to parse the result.
+//  * The string is an integer, in which case it will attempt to match the {{.EnumID}} value for that corrasponding integer.
+//
+// If either of those options cannot subsequently locate a corrasponding enum value, it will return the default error
+// behavior described above.
+func Parse{{.EnumID}}(name string) ({{.EnumID}}, error) {
+    if len(name) < 1 {
+        return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
+    }
+
+    first, _ := utf8.DecodeRuneInString(name)
+    if first == utf8.RuneError {
+        return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
+    }
+
+    switch {
+    case unicode.IsLower(first):
+        // test for snake_case
+        if x, ok := _{{.EnumID}}Value[name]; ok {
+            return x, nil
+        }
+
+        // test for command-case
+        if x, ok := _{{.EnumID}}CommandValue[name]; ok {
+            return x, nil
+        }
+
+        // test for camelCase
+        if x, ok := _{{.EnumID}}CamelValue[name]; ok {
+            return x, nil
+        }
+    case unicode.IsUpper(first):
+        // test for PascalCase
+        if x, ok := _{{.EnumID}}PascalValue[name]; ok {
+            return x, nil
+        }
+
+        // test for SCREAMING_CASE
+        if x, ok := _{{.EnumID}}ScreamingValue[name]; ok {
+            return x, nil
+        }
+    case unicode.IsSpace(first):
+        // the provided string had whitespace. Trim it and try again.
+        return Parse{{.EnumID}}(strings.TrimSpace(name))
+    case unicode.IsDigit(first):
+        // the provided string started with a number - assuming this is
+        // an integer and attempting to match it to a value.
+        intVal, err := strconv.Atoi(name)
+        if err != nil {
+            return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
+        }
+
+        // use the Coder interface Lookup function to identify the integer value (if it exists).
+        return Lookup{{.EnumID}}(intVal)
+    default:
+        return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
+    }
+
+    return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
+}

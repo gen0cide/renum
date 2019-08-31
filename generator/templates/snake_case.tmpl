@@ -1,0 +1,14 @@
+const _{{.EnumID}}SnakeName = "{{ stringify . }}"
+
+var _{{.EnumID}}SnakeValue = {{ unmapify . }}
+
+var _{{.EnumID}}SnakeMap = {{ mapify . }}
+
+// SnakeCase returns the enum as a snake_case string.
+func (x {{.EnumID}}) SnakeCase() string {
+  if str, ok := _{{.EnumID}}Map[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}Map[{{.EnumID}}(0)]
+}

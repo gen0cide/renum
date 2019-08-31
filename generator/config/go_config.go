@@ -1,4 +1,4 @@
-package generator
+package config
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 // GoConfig holds the primary configuration information about the Go environment that will be generated into.
 type GoConfig struct {
 	Type        string     `json:"type,omitempty" mapstructure:"type,omitempty" yaml:"type,omitempty" toml:"type,omitempty" default:"int" validate:"required,oneof=int8 int16 int32 int64 int uint uint8 uint16 uint32 uint64"`
+	Comment     string     `json:"comment,omitempty" mapstructure:"comment,omitempty" yaml:"comment,omitempty" toml:"comment,omitempty" validate:"required"`
 	Name        string     `json:"name,omitempty" mapstructure:"name,omitempty" yaml:"name,omitempty" toml:"name,omitempty" validate:"required"`
 	Filename    string     `json:"filename,omitempty" mapstructure:"filename,omitempty" yaml:"filename,omitempty" toml:"filename,omitempty"`
 	Initialisms []string   `json:"initialisms,omitempty" mapstructure:"initialisms,omitempty" yaml:"initialisms,omitempty" toml:"initialisms,omitempty"`

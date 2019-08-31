@@ -1,0 +1,10 @@
+var _{{.EnumID}}Paths = {{ mapify . }}
+
+// Source returns an import path directly to the type.
+func (x {{.EnumID}}) Path() string {
+  if str, ok := _{{.EnumID}}Paths[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}Paths[{{.EnumID}}(0)]
+}

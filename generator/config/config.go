@@ -1,8 +1,10 @@
-package generator
+package config
 
 import (
 	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
+
+	"github.com/gen0cide/renum"
 )
 
 // Config holds the top level configuration object used during generation.
@@ -26,4 +28,10 @@ func NewConfig() (Config, error) {
 // EnumID is a template helper function that returns the enum's generated type.
 func (c Config) EnumID() string {
 	return c.Go.Prefix.Pascal()
+}
+
+// Version is a helper function for use during code generation in order to embed the
+// renum library / command line generator version number into the generated source file.
+func (c Config) Version() string {
+	return renum.VersionString()
 }

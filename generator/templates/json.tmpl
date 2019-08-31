@@ -1,0 +1,20 @@
+// MarshalJSON implements the json.Marshaler interface.
+func (x {{.EnumID}}) MarshalJSON() ([]byte, error) {
+  return json.Marshal(x.String())
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+func (x *{{.EnumID}}) UnmarshalJSON(b []byte) error {
+  var s string
+  if err := json.Unmarshal(b, &s); err != nil {
+    return fmt.Errorf("error unmarshaling JSON value: %v", err)
+  }
+
+  tmp, err := Parse{{.EnumID}}(s)
+  if err != nil {
+    return err
+  }
+
+  *x = tmp
+  return nil
+}
