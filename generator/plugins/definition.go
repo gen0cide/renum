@@ -15,7 +15,7 @@ type definitionPlugin struct {
 
 // Enabled implements the Plugin interface.
 func (p *definitionPlugin) Enabled(c *config.Config) bool {
-	return true
+	return !c.Go.Type.SkipDeclare
 }
 
 // Validate implements the Plugin interface.

@@ -15,7 +15,7 @@ type yamlPlugin struct {
 
 // Enabled implements the Plugin interface.
 func (p *yamlPlugin) Enabled(c *config.Config) bool {
-	return c.Plugins.YAML
+	return c.Plugins.Serializers.YAML
 }
 
 // Validate implements the Plugin interface.

@@ -26,6 +26,12 @@ const (
 	// CaseCommand represents command-case
 	CaseCommand
 
+	// CaseTrain represents TRAIN-CASE
+	CaseTrain
+
+	// CaseDotted represents dotted.case
+	CaseDotted
+
 	// CaseDefault is an alias to the default, snake_case
 	CaseDefault = CaseSnake
 )
@@ -43,13 +49,17 @@ func (c Case) String() string {
 		return "Pascal"
 	case CaseCommand:
 		return "Command"
+	case CaseTrain:
+		return "Train"
+	case CaseDotted:
+		return "Dotted"
 	default:
 		return CaseDefault.String()
 	}
 }
 
 // Val returns an enum element's identifier that matches the appropriate case.
-func (c Case) Val(e config.Element) string {
+func (c Case) Val(e *config.Element) string {
 	switch c {
 	case CaseSnake:
 		return e.Snake()
@@ -61,6 +71,10 @@ func (c Case) Val(e config.Element) string {
 		return e.Pascal()
 	case CaseCommand:
 		return e.Command()
+	case CaseTrain:
+		return e.Train()
+	case CaseDotted:
+		return e.Dotted()
 	default:
 		return CaseDefault.String()
 	}
@@ -68,7 +82,7 @@ func (c Case) Val(e config.Element) string {
 
 func unmapifyForCase(c *config.Config, pref Case) string {
 	buf := new(strings.Builder)
-	fmt.Fprintf(buf, "map[string]%s{\n", c.Go.Prefix.Pascal())
+	fmt.Fprintf(buf, "map[string]%s{\n", c.Go.Type.Prefix().Pascal())
 	label := stringifyIdentifier(c, pref)
 	index := 0
 	for _, val := range c.Values {
@@ -86,7 +100,7 @@ func unmapifyForCase(c *config.Config, pref Case) string {
 
 func mapifyForCase(c *config.Config, pref Case) string {
 	buf := new(strings.Builder)
-	fmt.Fprintf(buf, "map[%s]string{\n", c.Go.Prefix.Pascal())
+	fmt.Fprintf(buf, "map[%s]string{\n", c.Go.Type.Prefix().Pascal())
 	label := stringifyIdentifier(c, pref)
 	index := 0
 	for _, val := range c.Values {
@@ -118,7 +132,7 @@ func stringifyForCase(c *config.Config, pref Case) string {
 func stringifyIdentifier(c *config.Config, pref Case) string {
 	buf := new(strings.Builder)
 	buf.WriteString("_")
-	buf.WriteString(c.Go.Prefix.Pascal())
+	buf.WriteString(c.Go.Type.Prefix().Pascal())
 	buf.WriteString(pref.String())
 	buf.WriteString("Name")
 	return buf.String()

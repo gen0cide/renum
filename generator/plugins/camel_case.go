@@ -39,7 +39,7 @@ func (p *camelCasePlugin) unmapify(c *config.Config) string {
 
 // Enabled implements the Plugin interface.
 func (p *camelCasePlugin) Enabled(c *config.Config) bool {
-	return true
+	return c.Plugins.Cases.Camel
 }
 
 // Validate implements the Plugin interface.

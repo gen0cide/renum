@@ -15,7 +15,7 @@ type textPlugin struct {
 
 // Enabled implements the Plugin interface.
 func (p *textPlugin) Enabled(c *config.Config) bool {
-	return c.Plugins.Text
+	return c.Plugins.Serializers.Text
 }
 
 // Validate implements the Plugin interface.

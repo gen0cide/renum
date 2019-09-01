@@ -1,10 +1,5 @@
 // Type implements the renum.Typer interface and allows the {{.EnumID}} to self report the type of value it is.
+// This method implements the github.com/gen0cide/renum.Typer interface.
 func (x {{.EnumID}}) Type() string {
   return "{{.EnumID}}"
-}
-
-// PointerUnmarshal is used to enforce renum's Unmarshaler interface by doing compile-time checking
-// that the {{.EnumID}} type conforms with the right pointer receivers for Unmarshaler functions.
-func (x {{.EnumID}}) PointerUnmarshal() renum.Unmarshaler {
-  return &x
 }

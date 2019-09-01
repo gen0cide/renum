@@ -1,9 +1,5 @@
 package config
 
-import (
-	"fmt"
-)
-
 var (
 	_builtinYARPCCode  = 2
 	_builtinHTTPCode   = 520
@@ -12,31 +8,37 @@ var (
 
 // Element represents a single, unique value within an enum that's being generated.
 type Element struct {
-	Name        string       `json:"name,omitempty" mapstructure:"name,omitempty" yaml:"name,omitempty" toml:"name,omitempty"`
-	Message     string       `json:"message,omitempty" mapstructure:"message,omitempty" yaml:"message,omitempty" toml:"message,omitempty"`
-	Description string       `json:"description,omitempty" mapstructure:"description,omitempty" yaml:"description,omitempty" toml:"description,omitempty"`
-	Comment     string       `json:"comment,omitempty" mapstructure:"comment,omitempty" yaml:"comment,omitempty" toml:"comment,omitempty" validate:"required"`
-	Codes       CodeDefaults `json:"codes,omitempty" mapstructure:"codes,omitempty" yaml:"codes,omitempty" toml:"codes,omitempty"`
-	Docs        DocDef       `json:"docs,omitempty" mapstructure:"docs,omitempty" yaml:"docs,omitempty" toml:"docs,omitempty"`
-	Ident       Identifier   `json:"-" yaml:"-" toml:"-" mapstructure:"-"`
-	Value       int          `json:"-" yaml:"-" toml:"-" mapstructure:"-"`
-	Go          GoConfig     `json:"-" yaml:"-" toml:"-" mapstructure:"-"`
-	Plugins     PluginConfig `json:"-" yaml:"-" toml:"-" mapstructure:"-"`
+	Name        string     `json:"name,omitempty" mapstructure:"name,omitempty" yaml:"name,omitempty" toml:"name,omitempty" validate:"required"`
+	Message     string     `json:"message,omitempty" mapstructure:"message,omitempty" yaml:"message,omitempty" toml:"message,omitempty"`
+	Comment     string     `json:"comment,omitempty" mapstructure:"comment,omitempty" yaml:"comment,omitempty" toml:"comment,omitempty"`
+	Description string     `json:"description,omitempty" mapstructure:"description,omitempty" yaml:"description,omitempty" toml:"description,omitempty"`
+	Codes       CodeValues `json:"codes,omitempty" mapstructure:"codes,omitempty" yaml:"codes,omitempty" toml:"codes,omitempty"`
+	Ident       Identifier `json:"-" yaml:"-" toml:"-" mapstructure:"-"`
+	Value       int        `json:"-" yaml:"-" toml:"-" mapstructure:"-"`
+	Config      *Config    `json:"-" yaml:"-" toml:"-" mapstructure:"-"`
+
+	prefixed Identifier
+}
+
+// Prefixed returns an identifier for the element with the enum type prefix attached.
+func (e Element) Prefixed() Identifier {
+	return e.prefixed
+	// return NewIdentifier(fmt.Sprintf("%s_%s", e.Config.Go.Type.Prefix().Snake(), e.Snake()))
 }
 
 // PrefixedSnake is a template function that returns the a qualified name with the enum's type as a prefix (snake_case).
 func (e Element) PrefixedSnake() string {
-	return fmt.Sprintf("%s_%s", e.Go.Prefix.Snake(), e.Snake())
+	return e.prefixed.Snake()
 }
 
 // PrefixedPascal is a template function that returns the a qualified name with the enum's type as a prefix (PascalCase).
 func (e Element) PrefixedPascal() string {
-	return fmt.Sprintf("%s%s", e.Go.Prefix.Pascal(), e.Pascal())
+	return e.prefixed.Pascal()
 }
 
 // PrefixedScreaming is a template function that returns the a qualified name with the enum's type as a prefix (SCREAMING_CASE).
 func (e Element) PrefixedScreaming() string {
-	return fmt.Sprintf("%s_%s", e.Go.Prefix.Screaming(), e.Screaming())
+	return e.prefixed.Screaming()
 }
 
 // Camel returns the enum's name in camelCase form.
@@ -64,14 +66,24 @@ func (e Element) Screaming() string {
 	return e.Ident.Screaming()
 }
 
+// Train returns the enum's name in TRAIN-CASE form.
+func (e Element) Train() string {
+	return e.Ident.Train()
+}
+
+// Dotted returns the enum's name in dotted.case form.
+func (e Element) Dotted() string {
+	return e.Ident.Dotted()
+}
+
 // YARPCCode is a template helper function that returns the enum element's YARPC error code. That
 // value is determined by order of priority: explicitly set in config, default set in config, and finally, the built in default. (2)
 func (e Element) YARPCCode() int {
 	ret := _builtinYARPCCode
-	if e.Plugins.Codes.YARPC && e.Plugins.Codes.Defaults.YARPC != nil {
-		ret = *e.Plugins.Codes.Defaults.YARPC
+	if e.Config.Plugins.Codes.YARPC && e.Config.Plugins.Codes.Defaults.YARPC != nil {
+		ret = *e.Config.Plugins.Codes.Defaults.YARPC
 	}
-	if e.Plugins.Codes.YARPC && e.Codes.YARPC != nil {
+	if e.Config.Plugins.Codes.YARPC && e.Codes.YARPC != nil {
 		ret = *e.Codes.YARPC
 	}
 
@@ -82,10 +94,10 @@ func (e Element) YARPCCode() int {
 // value is determined by order of priority: explicitly set in config, default set in config, and finally, the built in default. (520)
 func (e Element) HTTPCode() int {
 	ret := _builtinHTTPCode
-	if e.Plugins.Codes.HTTP && e.Plugins.Codes.Defaults.HTTP != nil {
-		ret = *e.Plugins.Codes.Defaults.HTTP
+	if e.Config.Plugins.Codes.HTTP && e.Config.Plugins.Codes.Defaults.HTTP != nil {
+		ret = *e.Config.Plugins.Codes.Defaults.HTTP
 	}
-	if e.Plugins.Codes.HTTP && e.Codes.HTTP != nil {
+	if e.Config.Plugins.Codes.HTTP && e.Codes.HTTP != nil {
 		ret = *e.Codes.HTTP
 	}
 
@@ -96,10 +108,10 @@ func (e Element) HTTPCode() int {
 // value is determined by order of priority: explicitly set in config, default set in config, and finally, the built in default. (1)
 func (e Element) OSExitCode() int {
 	ret := _builtinOSExitCode
-	if e.Plugins.Codes.OSExit && e.Plugins.Codes.Defaults.OSExit != nil {
-		ret = *e.Plugins.Codes.Defaults.OSExit
+	if e.Config.Plugins.Codes.OSExit && e.Config.Plugins.Codes.Defaults.OSExit != nil {
+		ret = *e.Config.Plugins.Codes.Defaults.OSExit
 	}
-	if e.Plugins.Codes.OSExit && e.Codes.OSExit != nil {
+	if e.Config.Plugins.Codes.OSExit && e.Codes.OSExit != nil {
 		ret = *e.Codes.OSExit
 	}
 

@@ -6,10 +6,12 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime/pprof"
 
 	"gopkg.in/yaml.v2"
 
 	"github.com/dixonwille/wlog"
+	"github.com/pkg/errors"
 
 	"github.com/gen0cide/renum"
 	"github.com/gen0cide/renum/generator/config"
@@ -20,24 +22,18 @@ import (
 )
 
 var ui wlog.UI
-var fileConfig config.Config
-var cliConfig config.Config
+var fileConfig *config.Config
+
+var cpuprofile string
 
 func init() {
 	baseUI := wlog.New(os.Stdin, os.Stdout, os.Stderr)
 	prefixedUI := wlog.AddPrefix("[?]", "["+wlog.Cross+"]", "[+]", "", "", "[~]", "["+wlog.Check+"]", "[!]", baseUI)
 	colorUI := wlog.AddColor(wlog.BrightCyan, wlog.BrightRed, wlog.BrightWhite, wlog.BrightBlue, wlog.None, wlog.None, wlog.BrightMagenta, wlog.BrightGreen, wlog.BrightYellow, prefixedUI)
 	ui = wlog.AddConcurrent(colorUI)
-	fc, err := config.NewConfig()
-	if err != nil {
-		panic(err)
-	}
-	cc, err := config.NewConfig()
-	if err != nil {
-		panic(err)
-	}
+	fc := config.NewEmptyConfig()
+
 	fileConfig = fc
-	cliConfig = cc
 }
 
 var configPath string
@@ -54,6 +50,14 @@ var globalFlags = []cli.Flag{
 			"RENUM_CONFIG_PATH",
 		},
 		Destination: &configPath,
+	},
+	&cli.PathFlag{
+		Name:  "cpu-profile",
+		Usage: "Enable CPU profiling of renum.",
+		EnvVars: []string{
+			"RENUM_CPU_PROFILE",
+		},
+		Destination: &cpuprofile,
 	},
 	&cli.BoolFlag{
 		Name: "debug",
@@ -107,56 +111,67 @@ var app = &cli.App{
 			Flags:       flagOverrides(),
 		},
 	},
+	Before: func(c *cli.Context) error {
+		if cpuprofile != "" {
+			f, err := os.Create(cpuprofile)
+			if err != nil {
+				return errors.Wrap(err, "error opening cpu profile path")
+			}
+			err = pprof.StartCPUProfile(f)
+			if err != nil {
+				return errors.Wrap(err, "error starting cpu profiler")
+			}
+		}
+
+		return nil
+	},
+	After: func(c *cli.Context) error {
+		if cpuprofile != "" {
+			pprof.StopCPUProfile()
+		}
+		return nil
+	},
 }
 
 func handleCLIParams() {
 	if outputDir != "" {
-		fileConfig.OutputDir = outputDir
+		fileConfig.Output.Dir = outputDir
 	}
 	if goType != "" {
-		fileConfig.Go.Type = goType
+		fileConfig.Go.Type.Numeric = goType
 	}
 	if goName != "" {
-		fileConfig.Go.Name = goName
+		fileConfig.Go.Type.Name = goName
 	}
 	if goPackageName != "" {
-		fileConfig.Go.PackageName = goPackageName
+		fileConfig.Go.Package.Name = goPackageName
 	}
 	if goPackagePath != "" {
-		fileConfig.Go.PackagePath = goPackagePath
+		fileConfig.Go.Package.Path = goPackagePath
 	}
 	if goFilename != "" {
-		fileConfig.Go.Filename = goFilename
+		fileConfig.Output.Filename = goFilename
 	}
 	if enableErrors {
-		fileConfig.Plugins.Error = true
+		fileConfig.Plugins.Renum.Error = true
 	}
 	if enableText {
-		fileConfig.Plugins.Text = true
+		fileConfig.Plugins.Serializers.Text = true
 	}
 	if enableJSON {
-		fileConfig.Plugins.JSON = true
+		fileConfig.Plugins.Serializers.JSON = true
 	}
 	if enableYAML {
-		fileConfig.Plugins.YAML = true
+		fileConfig.Plugins.Serializers.YAML = true
 	}
 	if enableSQL {
-		fileConfig.Plugins.SQL = true
+		fileConfig.Plugins.Serializers.SQL = true
 	}
 	if enableFlags {
-		fileConfig.Plugins.Flags = true
+		fileConfig.Plugins.Serializers.Flags = true
 	}
 	if enableDescriptions {
-		fileConfig.Plugins.Description = true
-	}
-	if enableNamespaces {
-		fileConfig.Plugins.Namespace.Enabled = true
-	}
-	if pluginNamespacesPath != "" {
-		fileConfig.Plugins.Namespace.Namespace = pluginNamespacesPath
-	}
-	if enableCodesSimple {
-		fileConfig.Plugins.Codes.Simple = true
+		fileConfig.Plugins.Renum.Descriptioner = true
 	}
 	if enableCodesYARPC {
 		fileConfig.Plugins.Codes.YARPC = true
@@ -186,7 +201,7 @@ func generate(ctx *cli.Context) error {
 
 	ui.Success("parsed configuration")
 
-	g, err := generator.NewGenerator(&fileConfig)
+	g, err := generator.NewGenerator(fileConfig)
 	if err != nil {
 		ui.Warn("Error creating generator")
 		return err
@@ -208,7 +223,7 @@ func generate(ctx *cli.Context) error {
 
 	ui.Success("generated Go code")
 
-	fileloc := filepath.Join(g.Config.OutputDir, g.Config.Go.OutputFilename())
+	fileloc := filepath.Join(g.Config.Output.Dir, g.Config.OutputFilename())
 	err = ioutil.WriteFile(fileloc, data, 0644)
 	if err != nil {
 		ui.Warn("Error writing generated code")
@@ -226,7 +241,7 @@ func testConfig(ctx *cli.Context) error {
 		return err
 	}
 
-	g, err := generator.NewGenerator(&fileConfig)
+	g, err := generator.NewGenerator(fileConfig)
 	if err != nil {
 		ui.Warn("Error creating generator")
 		return err
@@ -254,7 +269,6 @@ func testConfig(ctx *cli.Context) error {
 
 	ui.Success("Encoded config")
 	ui.Output(buf.String())
-	// pp.Println(fileConfig)
 	return nil
 }
 
@@ -271,7 +285,7 @@ func readConfigFile() error {
 		return err
 	}
 
-	err = yaml.UnmarshalStrict(data, &fileConfig)
+	err = yaml.UnmarshalStrict(data, fileConfig)
 	if err != nil {
 		ui.Warn("Error parsing config file YAML")
 		return err

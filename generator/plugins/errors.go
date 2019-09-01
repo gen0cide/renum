@@ -28,14 +28,14 @@ type errorsPlugin struct {
 func (p *errorsPlugin) mapify(c *config.Config) (string, error) {
 	return mapifyStringBuilder(c, func(e config.Element) interface{} {
 		buf := new(strings.Builder)
-		fmt.Fprintf(buf, "%s.%s_%s (%d): %s", c.Plugins.Namespace.Namespace, c.Go.Prefix.Snake(), e.Snake(), e.Value, e.Message)
+		fmt.Fprintf(buf, "%s.%s_%s (%d): %s", c.Namespace(), c.Go.Type.Prefix().Snake(), e.Snake(), e.Value, e.Message)
 		return buf.String()
 	})
 }
 
 // Enabled implements the Plugin interface.
 func (p *errorsPlugin) Enabled(c *config.Config) bool {
-	return c.Plugins.Error
+	return c.Plugins.Renum.Error
 }
 
 // Validate implements the Plugin interface.

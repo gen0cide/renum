@@ -1,0 +1,15 @@
+// MarshalCSV implements the csvutil.Marshaler interface. (https://godoc.org/github.com/jszwec/csvutil#Marshaler)
+func (x {{.EnumID}}) MarshalCSV() ([]byte, error) {
+  return []byte(x.String()), nil
+}
+
+// UnmarshalCSV implements the csvutil.Unmarshaler interface. (https://godoc.org/github.com/jszwec/csvutil#Unmarshaler)
+func (x *{{.EnumID}}) UnmarshalCSV(b []byte) error {
+  tmp, err := Parse{{.EnumID}}(string(b))
+  if err != nil {
+    return err
+  }
+
+  *x = tmp
+  return nil
+}

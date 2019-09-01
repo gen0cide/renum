@@ -1,0 +1,14 @@
+const _{{.EnumID}}TrainName = "{{ stringify . }}"
+
+var _{{.EnumID}}TrainValue = {{ unmapify . }}
+
+var _{{.EnumID}}TrainMap = {{ mapify . }}
+
+// TrainCase returns the enum value as a TRAIN-CASE string.
+func (x {{.EnumID}}) TrainCase() string {
+  if str, ok := _{{.EnumID}}TrainMap[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}TrainMap[{{.EnumID}}(0)]
+}

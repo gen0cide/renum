@@ -19,4 +19,10 @@ type Caser interface {
 
 	// CommandCase should return enum names formatted as "command-case" representations
 	CommandCase() string
+
+	// TrainCase should return enum names formatted as "TRAIN-CASE" representations
+	TrainCase() string
+
+	// DottedCase should renum enum names formatted as "dotted.case" representations
+	DottedCase() string
 }

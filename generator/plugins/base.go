@@ -3,7 +3,6 @@ package plugins
 import (
 	"bytes"
 	"errors"
-	"sync"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
@@ -29,7 +28,6 @@ var (
 )
 
 type base struct {
-	mutex    *sync.RWMutex
 	t        *template.Template
 	priority int
 	name     string
@@ -44,7 +42,6 @@ func newBase(name string, priority int) base {
 		priority: priority,
 		buf:      new(bytes.Buffer),
 		funcs:    sprig.TxtFuncMap(),
-		mutex:    new(sync.RWMutex),
 	}
 
 	return b
@@ -52,8 +49,6 @@ func newBase(name string, priority int) base {
 
 // addFuncs is used to append functions to the template function map.
 func (b *base) addFuncs(tm template.FuncMap) {
-	b.mutex.Lock()
-	defer b.mutex.Unlock()
 	if b.funcs == nil {
 		b.funcs = template.FuncMap{}
 	}

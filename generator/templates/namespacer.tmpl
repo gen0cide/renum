@@ -1,0 +1,33 @@
+const (
+  _{{.EnumID}}Namespace = `{{.Namespace}}`
+)
+
+// Namespace returns the a dotted namespace representation of the Go package import
+// path for the parent package to {{.EnumID}}. This method implements the github.com/gen0cide/renum.Namespacer interface.
+func (x {{.EnumID}}) Namespace() string {
+  return _{{.EnumID}}Namespace
+}
+
+var _{{.EnumID}}Paths = {{ mapify_paths . }}
+
+// Paths returns a full "path" comprised of namespace + id for a given enum value. This
+// method implements the github.com/gen0cide/renum.Namespacer interface.
+func (x {{.EnumID}}) Path() string {
+  if str, ok := _{{.EnumID}}Paths[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}Paths[{{.EnumID}}(0)]
+}
+
+var _{{.EnumID}}IDs = {{ mapify_ids . }}
+
+// ID returns a snake_case identifier comprised of the enum's standard snake_case prefixed
+// with the {{.EnumID}}'s snake_case name. This method implements the github.com/gen0cide/renum.Namespacer interface.
+func (x {{.EnumID}}) ID() string {
+  if str, ok := _{{.EnumID}}IDs[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}IDs[{{.EnumID}}(0)]
+}

@@ -1,0 +1,14 @@
+const _{{.EnumID}}DottedName = "{{ stringify . }}"
+
+var _{{.EnumID}}DottedValue = {{ unmapify . }}
+
+var _{{.EnumID}}DottedMap = {{ mapify . }}
+
+// DottedCase returns the enum value as a dotted.case string.
+func (x {{.EnumID}}) DottedCase() string {
+  if str, ok := _{{.EnumID}}DottedMap[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}DottedMap[{{.EnumID}}(0)]
+}

@@ -2,33 +2,47 @@ package plugins
 
 // All returns a pre-populated list of plugins written for renum's code generator.
 var All = []Constructor{
-	NewCamelCasePlugin,
-	NewCodesPlugin,
-	NewCommandCasePlugin,
+	// required
 	NewConstPlugin,
-	NewDefinitionPlugin,
-	NewDescriptionsPlugin,
-	NewErrorsPlugin,
-	NewFlagsPlugin,
 	NewHeaderPlugin,
-	NewHTTPCodesPlugin,
-	NewJSONPlugin,
-	NewKindsPlugin,
-	NewMessagesPlugin,
-	NewNamesPlugin,
-	NewOSExitCodesPlugin,
-	NewPackageInfoPlugin,
 	NewParsePlugin,
-	NewPascalCasePlugin,
-	NewPathsPlugin,
-	NewScreamingCasePlugin,
 	NewSnakeCasePlugin,
-	NewSourcesPlugin,
-	NewSQLPlugin,
 	NewStringerPlugin,
-	NewTextPlugin,
-	NewTyperPlugin,
+	NewNamesPlugin,
 	NewValuesPlugin,
+	NewTextPlugin,
+
+	// Caser
+	NewCamelCasePlugin,
+	NewCommandCasePlugin,
+	NewPascalCasePlugin,
+	NewScreamingCasePlugin,
+	NewDottedCasePlugin,
+	NewTrainCasePlugin,
+
+	// to include a type definition
+	NewDefinitionPlugin,
+
+	// required for renum.Enum, optional for others
+	NewCoderPlugin,
+	NewDescriptionerPlugin,
+	NewTyperPlugin,
+	NewSourcerPlugin,
+	NewNamespacerPlugin,
+
+	// errors
+	NewMessagesPlugin,
+	NewErrorsPlugin,
+
+	// serializers plugins
+	NewSQLPlugin,
+	NewJSONPlugin,
+	NewFlagsPlugin,
 	NewYAMLPlugin,
+	NewCSVPlugin,
+
+	// codes plugins
 	NewYARPCCodesPlugin,
+	NewHTTPCodesPlugin,
+	NewOSExitCodesPlugin,
 }

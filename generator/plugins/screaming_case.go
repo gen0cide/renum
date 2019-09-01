@@ -39,7 +39,7 @@ func (p *screamingCasePlugin) unmapify(c *config.Config) string {
 
 // Enabled implements the Plugin interface.
 func (p *screamingCasePlugin) Enabled(c *config.Config) bool {
-	return true
+	return c.Plugins.Cases.Screaming
 }
 
 // Validate implements the Plugin interface.

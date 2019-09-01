@@ -1,8 +1,6 @@
 package renum
 
 import (
-	"encoding"
-	"encoding/json"
 	"fmt"
 )
 
@@ -16,7 +14,11 @@ type Enum interface {
 	// Namespacer requires enums to be uniquely identifiable with namespace and path values.
 	Namespacer
 
-	// Typer requires enums to describe their type semantics relating to source code.
+	// Sourcer requires enums to be able to self describe aspects of the Go source and package
+	// which they're located. This makes Enum's great for tracing and error handling.
+	Sourcer
+
+	// Typer requires enums to describe their type.
 	Typer
 
 	// Descriptioner requires enums to describe themselves in detail, upon request.
@@ -29,11 +31,12 @@ type Enum interface {
 	// Stringer implements fmt.Print handling
 	fmt.Stringer
 
-	// Marshaler implements JSON typing
-	json.Marshaler
-
-	// TextMarshaler implements text marshaling
-	encoding.TextMarshaler
+	// Marshaler requires that enums be able to support encoding/decoding for
+	// a variety of common formats. The expectation is that if your Enum implements
+	// Marshaler, that it will also implement the pointer recievers for Unmarshaler.
+	// If you're generating your Enum with the Renum CLI, this will happen
+	// automatically for you.
+	Marshaler
 }
 
 var undefinedValue = `undefined_enum_value`

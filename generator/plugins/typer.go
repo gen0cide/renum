@@ -15,7 +15,7 @@ type typerPlugin struct {
 
 // Enabled implements the Plugin interface.
 func (p *typerPlugin) Enabled(c *config.Config) bool {
-	return true
+	return c.Plugins.Renum.Typer
 }
 
 // Validate implements the Plugin interface.

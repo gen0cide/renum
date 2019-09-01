@@ -1,0 +1,40 @@
+const (
+  _{{.EnumID}}PkgName = `{{.Go.Package.Name}}`
+  _{{.EnumID}}PkgPath = `{{.Go.Package.Path}}`
+)
+
+// PackageName returns the name of the parent package for the {{.EnumID}} type as
+// part of the github.com/gen0cide/renum.Sourcer interface.
+func (x {{.EnumID}}) PackageName() string {
+  return _{{.EnumID}}PkgName
+}
+
+// ImportPath returns the full import path of the parent package for the {{.EnumID}}
+// type as part of the github.com/gen0cide/renum.Sourcer interface.
+func (x {{.EnumID}}) PackagePath() string {
+  return _{{.EnumID}}PkgPath
+}
+
+var _{{.EnumID}}ExportRefs = {{ mapify_export_refs . }}
+
+// ExportRef returns the full Go import path for the parent package of {{.EnumID}}
+// joined with the exported name for the enum value. This is part of the github.com/gen0cide/renum.Sourcer interface.
+func (x {{.EnumID}}) ExportRef() string {
+  if str, ok := _{{.EnumID}}ExportRefs[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}ExportRefs[{{.EnumID}}(0)]
+}
+
+var _{{.EnumID}}ExportTypes = {{ mapify_export_types . }}
+
+// ExportType returns package name the parent package of {{.EnumID}} joined with the
+// exported name for the enum value. This is part of the github.com/gen0cide/renum.Sourcer interface.
+func (x {{.EnumID}}) ExportType() string {
+  if str, ok := _{{.EnumID}}ExportTypes[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}ExportTypes[{{.EnumID}}(0)]
+}

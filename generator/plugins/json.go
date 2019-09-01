@@ -15,7 +15,7 @@ type jsonPlugin struct {
 
 // Enabled implements the Plugin interface.
 func (p *jsonPlugin) Enabled(c *config.Config) bool {
-	return c.Plugins.JSON
+	return c.Plugins.Serializers.JSON
 }
 
 // Validate implements the Plugin interface.

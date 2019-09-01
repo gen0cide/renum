@@ -31,7 +31,7 @@ func (p *messagesPlugin) mapify(c *config.Config) (string, error) {
 
 // Enabled implements the Plugin interface.
 func (p *messagesPlugin) Enabled(c *config.Config) bool {
-	return c.Plugins.Error
+	return c.Plugins.Renum.Error
 }
 
 // Validate implements the Plugin interface.

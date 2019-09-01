@@ -4,7 +4,7 @@ var _{{.EnumID}}CamelValue = {{ unmapify . }}
 
 var _{{.EnumID}}CamelMap = {{ mapify . }}
 
-// CamelCase returns the enum as a cascalCase string.
+// CamelCase returns the enum value as a camelCase string.
 func (x {{.EnumID}}) CamelCase() string {
   if str, ok := _{{.EnumID}}CamelMap[x]; ok {
     return str

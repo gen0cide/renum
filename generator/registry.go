@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"sync"
 
 	"github.com/pkg/errors"
 
@@ -16,8 +15,6 @@ import (
 // Registry is a type that allows for Renderers to be bundled together
 // and have operations performed in parallel on them.
 type Registry struct {
-	sync.RWMutex
-
 	plugins map[string]plugins.Plugin
 }
 
@@ -48,25 +45,16 @@ func NewRegistryWithPlugins(c ...plugins.Constructor) *Registry {
 
 // Add inserts the Plugin into it's table.
 func (r *Registry) Add(rdr plugins.Plugin) {
-	r.Lock()
-	defer r.Unlock()
-
 	r.plugins[rdr.Name()] = rdr
 }
 
 // Delete removes a Plugin of a given name from the Registry's lookup table.
 func (r *Registry) Delete(name string) {
-	r.Lock()
-	defer r.Unlock()
-
 	delete(r.plugins, name)
 }
 
 // Clone copies a registry, including it's current plugin table.
 func (r *Registry) Clone() *Registry {
-	r.Lock()
-	defer r.Unlock()
-
 	newTable := make(map[string]plugins.Plugin, len(r.plugins))
 	for k, v := range r.plugins {
 		newTable[k] = v
@@ -93,40 +81,39 @@ func (r *Registry) Build(c *config.Config) error {
 		idx++
 	}
 
-	errchan := make(chan error, 1)
-	delchan := make(chan string, 1)
-	finchan := make(chan struct{}, 1)
-	wg := new(sync.WaitGroup)
-	wg.Add(len(renderers))
-
-	go func() {
-		wg.Wait()
-		finchan <- struct{}{}
-	}()
-
 	for _, x := range renderers {
-		go execute(x, c, wg, delchan, errchan)
-	}
-
-	for {
-		select {
-		case err := <-errchan:
-			return err
-		case del := <-delchan:
-			r.Delete(del)
+		if !x.Enabled(c) {
+			delete(r.plugins, x.Name())
 			continue
-		case <-finchan:
-			return nil
+		}
+
+		tmplData, err := static.ReadFile(fmt.Sprintf("%s.tmpl", x.Name()))
+		if err != nil {
+			return errors.Wrapf(err, "error reading template for plugin %s", x.Name())
+		}
+
+		err = x.Load(tmplData)
+		if err != nil {
+			return errors.Wrapf(err, "error loading template for plugin %s", x.Name())
+		}
+
+		err = x.Validate(c)
+		if err != nil {
+			return errors.Wrapf(err, "error validating plugin %s", x.Name())
+		}
+
+		err = x.Render(c)
+		if err != nil {
+			return errors.Wrapf(err, "error rendering plugin %s", x.Name())
 		}
 	}
+
+	return nil
 }
 
 // Assemble is used to create the fully assembled Go source file containing the generated
 // enum and all it's implementations.
 func (r *Registry) Assemble() ([]byte, error) {
-	r.Lock()
-	defer r.Unlock()
-
 	// List the enabled renderers and sort them by priority
 	rlist := plugins.PluginList{}
 	for _, x := range r.plugins {
@@ -151,41 +138,4 @@ func (r *Registry) Assemble() ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
-}
-
-func execute(r plugins.Plugin, c *config.Config, wg *sync.WaitGroup, delchan chan string, errchan chan error) {
-	defer wg.Done()
-
-	if r == nil {
-		errchan <- errors.New("plugin was nil")
-		return
-	}
-
-	if !r.Enabled(c) {
-		delchan <- r.Name()
-		return
-	}
-
-	tmplData, err := static.ReadFile(fmt.Sprintf("%s.tmpl", r.Name()))
-	if err != nil {
-		errchan <- errors.Wrapf(err, "error reading template for plugin %s", r.Name())
-		return
-	}
-
-	err = r.Load(tmplData)
-	if err != nil {
-		errchan <- errors.Wrapf(err, "error loading template for plugin %s", r.Name())
-		return
-	}
-
-	err = r.Validate(c)
-	if err != nil {
-		errchan <- errors.Wrapf(err, "error validating plugin %s", r.Name())
-		return
-	}
-
-	err = r.Render(c)
-	if err != nil {
-		errchan <- errors.Wrapf(err, "error rendering plugin %s", r.Name())
-	}
 }

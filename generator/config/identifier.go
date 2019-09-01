@@ -8,6 +8,10 @@ import (
 	"github.com/gen0cide/flect"
 )
 
+// Initialisms is a type alias for a slice of strings that is used to create capitalization
+// identifiers for strings used.
+type Initialisms []string
+
 var acronyms = []string{
 	"AMI",
 	"OSQuery",
@@ -57,6 +61,16 @@ func (i Identifier) Command() string {
 // Camel returns the identifiers camelCase representation.
 func (i Identifier) Camel() string {
 	return swag.ToVarName(i.original)
+}
+
+// Train returns the identifiers TRAIN-CASE representation.
+func (i Identifier) Train() string {
+	return strings.ToUpper(i.Command())
+}
+
+// Dotted returns the identifiers dotted.case representation.
+func (i Identifier) Dotted() string {
+	return strings.ReplaceAll(i.Command(), `-`, `.`)
 }
 
 // Ident returns the identifiers underlying flect structure.

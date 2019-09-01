@@ -18,9 +18,6 @@ var (
 	enableSQL                bool
 	enableFlags              bool
 	enableDescriptions       bool
-	enableNamespaces         bool
-	pluginNamespacesPath     string
-	enableCodesSimple        bool
 	enableCodesYARPC         bool
 	pluginCodesYARPCDefault  int
 	enableCodesHTTP          bool

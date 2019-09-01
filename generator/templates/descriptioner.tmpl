@@ -1,0 +1,13 @@
+var _{{.EnumID}}Descriptions = {{ mapify . }}
+
+// Description allows a caller to retrieve more detailed description information
+// about an enum value. This information is not passed around with the enum, but kept
+// inside the source package and retrieved with this method. This method implements
+// the github.com/gen0cide/renum.Descriptioner interface.
+func (x {{.EnumID}}) Description() string {
+  if str, ok := _{{.EnumID}}Descriptions[x]; ok {
+    return str
+  }
+
+  return _{{.EnumID}}Descriptions[{{.EnumID}}(0)]
+}

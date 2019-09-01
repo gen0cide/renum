@@ -60,13 +60,13 @@ func mapifyStringBuilder(c *config.Config, getter GetterFunc) (string, error) {
 
 func mapBuilder(c *config.Config, vtype ValueType, getter GetterFunc) (string, error) {
 	buf := new(strings.Builder)
-	fmt.Fprintf(buf, "map[%s]%s{\n", c.Go.Prefix.Pascal(), vtype.String())
+	fmt.Fprintf(buf, "map[%s]%s{\n", c.Go.Type.Prefix().Pascal(), vtype.String())
 	for _, val := range c.Values {
 		if val.Pascal() == skipHolder {
 			continue
 		}
 
-		_, err := vtype.FormatValue(buf, val.Value, getter(val))
+		_, err := vtype.FormatValue(buf, val.Value, getter(*val))
 		if err != nil {
 			return "", fmt.Errorf("error attempting to write map value %s for type %s: %v", val.PrefixedPascal(), vtype.String(), err)
 		}

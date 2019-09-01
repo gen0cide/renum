@@ -1,17 +1,13 @@
 # Enum configuration
 go:
-  name: ErrorCode
-  comment: ErrorCode is an example error type that is used to demonstrate how renum's enum generator works.
-  package_name: lib
-  package_path: github.com/gen0cide/renum/example/lib
-plugins:
-  error: true
-  text: true
-  json: true
-  yaml: true
-  sql: true
-  flags: true
-  description: true
+  type:
+    name: ErrorCode
+    comment: ErrorCode is an example error type that is used to demonstrate how renum's enum generator works.
+  package:
+    name: lib
+    path: github.com/gen0cide/renum/example/lib
+presets:
+  use: error
 values:
   - name: unauthorized
     message: request was unauthorized

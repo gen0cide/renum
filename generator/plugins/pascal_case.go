@@ -39,7 +39,7 @@ func (p *pascalCasePlugin) unmapify(c *config.Config) string {
 
 // Enabled implements the Plugin interface.
 func (p *pascalCasePlugin) Enabled(c *config.Config) bool {
-	return true
+	return c.Plugins.Cases.Pascal
 }
 
 // Validate implements the Plugin interface.

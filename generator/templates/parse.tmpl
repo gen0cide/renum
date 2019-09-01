@@ -36,25 +36,47 @@ func Parse{{.EnumID}}(name string) ({{.EnumID}}, error) {
             return x, nil
         }
 
+        {{- if .Plugins.Cases.Command}}
         // test for command-case
         if x, ok := _{{.EnumID}}CommandValue[name]; ok {
             return x, nil
         }
 
+        {{- end }}
+        {{- if .Plugins.Cases.Camel}}
         // test for camelCase
         if x, ok := _{{.EnumID}}CamelValue[name]; ok {
             return x, nil
         }
+
+        {{- end }}
+        {{- if .Plugins.Cases.Dotted}}
+        // test for dotted.case
+        if x, ok := _{{.EnumID}}DottedValue[name]; ok {
+            return x, nil
+        }
+        {{- end }}
     case unicode.IsUpper(first):
+        {{- if .Plugins.Cases.Pascal}}
         // test for PascalCase
         if x, ok := _{{.EnumID}}PascalValue[name]; ok {
             return x, nil
         }
 
+        {{- end}}
+        {{- if .Plugins.Cases.Screaming}}
         // test for SCREAMING_CASE
         if x, ok := _{{.EnumID}}ScreamingValue[name]; ok {
             return x, nil
         }
+
+        {{- end}}
+        {{ if .Plugins.Cases.Train}}
+        // test for SCREAMING_CASE
+        if x, ok := _{{.EnumID}}TrainValue[name]; ok {
+            return x, nil
+        }
+        {{- end}}
     case unicode.IsSpace(first):
         // the provided string had whitespace. Trim it and try again.
         return Parse{{.EnumID}}(strings.TrimSpace(name))

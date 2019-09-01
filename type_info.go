@@ -15,16 +15,16 @@ type EnumTypeInfo struct {
 // of the renum.Enum type into a nested, flat structure.
 func ExtractEnumTypeInfo(e Enum) EnumTypeInfo {
 	return EnumTypeInfo{
-		Name: e.String(),
-		Code: e.Code(),
-		Details: TypeDetails{
-			Namespace:   e.Namespace(),
-			Path:        e.Path(),
-			Kind:        e.Kind(),
-			Source:      e.Source(),
-			ImportPath:  e.ImportPath(),
-			Description: e.Description(),
-		},
+		// Name: e.String(),
+		// Code: e.Code(),
+		// Details: TypeDetails{
+		// 	Namespace:   e.Namespace(),
+		// 	Path:        e.Path(),
+		// 	Kind:        e.Kind(),
+		// 	Source:      e.Source(),
+		// 	ImportPath:  e.ImportPath(),
+		// 	Description: e.Description(),
+		// },
 	}
 }
 
@@ -87,16 +87,16 @@ func extractTypeInfoFromList(errs ...error) []ErrorTypeInfo {
 // typedErrorToInfo converts a renum.Error type into an ErrorTypeInfo structure.
 func typedErrorToInfo(e Error) ErrorTypeInfo {
 	return ErrorTypeInfo{
-		Name: e.String(),
-		Code: e.Code(),
-		Details: TypeDetails{
-			Namespace:   e.Namespace(),
-			Path:        e.Path(),
-			Kind:        e.Kind(),
-			Source:      e.Source(),
-			ImportPath:  e.ImportPath(),
-			Description: e.Description(),
-		},
+		// Name: e.String(),
+		// Code: e.Code(),
+		// Details: TypeDetails{
+		// 	Namespace:   e.Namespace(),
+		// 	Path:        e.Path(),
+		// 	Kind:        e.Kind(),
+		// 	Source:      e.Source(),
+		// 	ImportPath:  e.ImportPath(),
+		// 	Description: e.Description(),
+		// },
 		Message: e.Message(),
 	}
 }

@@ -15,7 +15,7 @@ type sqlPlugin struct {
 
 // Enabled implements the Plugin interface.
 func (p *sqlPlugin) Enabled(c *config.Config) bool {
-	return c.Plugins.SQL
+	return c.Plugins.Serializers.SQL
 }
 
 // Validate implements the Plugin interface.
