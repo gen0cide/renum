@@ -31,3 +31,9 @@ func (x {{.EnumID}}) ID() string {
 
   return _{{.EnumID}}IDs[{{.EnumID}}(0)]
 }
+
+// Name returns a snake case identifier comprised of the enum's actual identifier. This name essentially is an alias
+// to the String() function.
+func (x {{.EnumID}}) Name() string {
+  return x.String()
+}

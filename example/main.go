@@ -86,29 +86,42 @@ func main() {
 func print(val lib.ErrorCode) {
 	fmt.Println()
 	ui.Running(fmt.Sprintf("ENUM VALUE OUTPUT - %s", val.String()))
+
 	ui.Info("renum.Coder interface")
-	ui.Success(fmt.Sprintf("Code() = %d", val.Code()))
+	ui.Success(fmt.Sprintf("     Code() = %d", val.Code()))
 	fmt.Println()
+
 	ui.Info("renum.Namespacer interface")
-	ui.Success(fmt.Sprintf("Namespace() = %s", val.Namespace()))
+	ui.Success(fmt.Sprintf("     Name() = %s", val.Name()))
+	ui.Success(fmt.Sprintf("       ID() = %s", val.ID()))
 	ui.Success(fmt.Sprintf("     Path() = %s", val.Path()))
+	ui.Success(fmt.Sprintf("Namespace() = %s", val.Namespace()))
 	fmt.Println()
+
 	ui.Info("renum.Typer interface")
-	ui.Success(fmt.Sprintf("       Kind() = %s", val.Kind()))
-	ui.Success(fmt.Sprintf("     Source() = %s", val.Source()))
-	ui.Success(fmt.Sprintf("PackageName() = %s", val.PackageName()))
-	ui.Success(fmt.Sprintf(" ImportPath() = %s", val.ImportPath()))
+	ui.Success(fmt.Sprintf("       Type() = %s", val.Type()))
 	fmt.Println()
+
+	ui.Info("renum.Sourcer interface")
+	ui.Success(fmt.Sprintf("PackageName() = %s", val.PackageName()))
+	ui.Success(fmt.Sprintf("PackagePath() = %s", val.PackagePath()))
+	ui.Success(fmt.Sprintf(" ExportType() = %s", val.ExportType()))
+	ui.Success(fmt.Sprintf("  ExportRef() = %s", val.ExportRef()))
+	fmt.Println()
+
 	ui.Info("renum.Descriptioner interface")
 	ui.Success(fmt.Sprintf("Description() = %s", val.Description()))
 	fmt.Println()
+
 	ui.Info("fmt.Stringer interface")
 	ui.Success(fmt.Sprintf("String() = %s", val.String()))
 	fmt.Println()
+
 	ui.Info("error interface")
 	ui.Success(fmt.Sprintf("Error()   = %s", val.Error()))
 	ui.Success(fmt.Sprintf("Message() = %s", val.Message()))
 	fmt.Println()
+
 	ui.Info("string casings")
 	ui.Success(fmt.Sprintf("snake_case     = %s", val.String()))
 	ui.Success(fmt.Sprintf("PascalCase     = %s", val.PascalCase()))
