@@ -16,7 +16,7 @@ import (
 	"github.com/gen0cide/renum"
 	"github.com/gen0cide/renum/generator/config"
 
-	"gopkg.in/urfave/cli.v2"
+	"github.com/urfave/cli/v2"
 
 	"github.com/gen0cide/renum/generator"
 )
