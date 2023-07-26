@@ -1,12 +1,3 @@
-// Lookup{{.EnumID}} attempts to convert a {{.Go.Type.Numeric}} to it's equivelent {{.EnumID}} value.
-func Lookup{{.EnumID}}(id {{.Go.Type.Numeric}}) ({{.EnumID}}, error) {
-  if _, ok := _{{.EnumID}}Map[{{.EnumID}}(id)]; ok {
-    return {{.EnumID}}(id), nil
-  }
-
-  return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
-}
-
 // Code implements the renum.Coder interface and allows an enum value to self report it's underlying integer ID. This
 // primarily was intended to be able to support generic numeric types, but at this time, it's simply an int.
 // This method implements the github.com/gen0cide/renum.Coder interface.

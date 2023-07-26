@@ -11,7 +11,3 @@ type Serializers struct {
 	Binary bool `json:"binary,omitempty" mapstructure:"binary,omitempty" yaml:"binary,omitempty" toml:"binary,omitempty"`
 	Flags  bool `json:"flags,omitempty" mapstructure:"flags,omitempty" yaml:"flags,omitempty" toml:"flags,omitempty"`
 }
-
-func emptySerializers() *Serializers {
-	return &Serializers{}
-}

@@ -18,7 +18,3 @@ type CodeValues struct {
 	Errno  *int `json:"errno,omitempty" mapstructure:"errno,omitempty" yaml:"errno,omitempty" toml:"errno,omitempty"`
 	OSExit *int `json:"os_exit,omitempty" mapstructure:"os_exit,omitempty" yaml:"os_exit,omitempty" toml:"os_exit,omitempty"`
 }
-
-func emptyCodes() *Codes {
-	return &Codes{}
-}

@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	"github.com/gen0cide/renum/generator/config"
 	"github.com/gen0cide/renum/generator/plugins"
@@ -113,7 +114,7 @@ func (r *Registry) Build(c *config.Config) error {
 
 // Assemble is used to create the fully assembled Go source file containing the generated
 // enum and all it's implementations.
-func (r *Registry) Assemble() ([]byte, error) {
+func (r *Registry) Assemble(c *config.Config) ([]byte, error) {
 	// List the enabled renderers and sort them by priority
 	rlist := plugins.PluginList{}
 	for _, x := range r.plugins {
@@ -136,6 +137,20 @@ func (r *Registry) Assemble() ([]byte, error) {
 
 		buf.WriteString("\n\n")
 	}
+
+	buf.WriteString("/* \n --- BEGIN CONFIG DUMP ---\n\n")
+
+	data, err := yaml.Marshal(c)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error marshaling the configuration to YAML for embedding in the file")
+	}
+
+	_, err = buf.Write(data)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not embed the YAML configuration into the generated source")
+	}
+
+	buf.WriteString("\n\n\n --- END CONFIG DUMP ---\n\n*/\n")
 
 	return buf.Bytes(), nil
 }

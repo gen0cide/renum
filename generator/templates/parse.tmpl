@@ -96,3 +96,13 @@ func Parse{{.EnumID}}(name string) ({{.EnumID}}, error) {
 
     return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
 }
+
+// Lookup{{.EnumID}} attempts to convert a {{.Go.Type.Numeric}} to it's equivelent {{.EnumID}} value.
+// This allows the reverse of the renum.Coder interface to occur.
+func Lookup{{.EnumID}}(id {{.Go.Type.Numeric}}) ({{.EnumID}}, error) {
+  if _, ok := _{{.EnumID}}Map[{{.EnumID}}(id)]; ok {
+    return {{.EnumID}}(id), nil
+  }
+
+  return {{.EnumID}}(0), ErrUndefined{{.EnumID}}EnumValue
+}

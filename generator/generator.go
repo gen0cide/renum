@@ -44,7 +44,7 @@ func (g *Generator) GenerateEnums() ([]byte, error) {
 		return nil, err
 	}
 
-	code, err := g.reg.Assemble()
+	code, err := g.reg.Assemble(g.Config)
 	if err != nil {
 		return nil, err
 	}

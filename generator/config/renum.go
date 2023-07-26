@@ -10,7 +10,3 @@ type Renum struct {
 	Caser         bool `json:"caser,omitempty" mapstructure:"caser,omitempty" yaml:"caser,omitempty" toml:"caser,omitempty"`
 	Error         bool `json:"error,omitempty" mapstructure:"error,omitempty" yaml:"error,omitempty" toml:"error,omitempty"`
 }
-
-func emptyRenum() *Renum {
-	return &Renum{}
-}

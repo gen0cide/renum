@@ -9,7 +9,3 @@ type Cases struct {
 	Dotted    bool `json:"dotted,omitempty" mapstructure:"dotted,omitempty" yaml:"dotted,omitempty" toml:"dotted,omitempty"`
 	Train     bool `json:"train,omitempty" mapstructure:"train,omitempty" yaml:"train,omitempty" toml:"train,omitempty"`
 }
-
-func emptyCases() *Cases {
-	return &Cases{}
-}

@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
@@ -22,7 +21,7 @@ import (
 )
 
 var ui wlog.UI
-var fileConfig *config.Config
+var fileConfig = config.NewEmptyConfig()
 
 var cpuprofile string
 
@@ -31,9 +30,9 @@ func init() {
 	prefixedUI := wlog.AddPrefix("[?]", "["+wlog.Cross+"]", "[+]", "", "", "[~]", "["+wlog.Check+"]", "[!]", baseUI)
 	colorUI := wlog.AddColor(wlog.BrightCyan, wlog.BrightRed, wlog.BrightWhite, wlog.BrightBlue, wlog.None, wlog.None, wlog.BrightMagenta, wlog.BrightGreen, wlog.BrightYellow, prefixedUI)
 	ui = wlog.AddConcurrent(colorUI)
-	fc := config.NewEmptyConfig()
+	// fc := config.NewEmptyConfig()
 
-	fileConfig = fc
+	// fileConfig = fc
 }
 
 var configPath string
@@ -224,7 +223,7 @@ func generate(ctx *cli.Context) error {
 	ui.Success("generated Go code")
 
 	fileloc := filepath.Join(g.Config.Output.Dir, g.Config.OutputFilename())
-	err = ioutil.WriteFile(fileloc, data, 0644)
+	err = os.WriteFile(fileloc, data, 0644) //nolint:gosec
 	if err != nil {
 		ui.Warn("Error writing generated code")
 		return err
@@ -279,15 +278,29 @@ func readConfigFile() error {
 	}
 
 	//nolint:gosec
-	data, err := ioutil.ReadFile(configPath)
+	data, err := os.ReadFile(configPath)
 	if err != nil {
 		ui.Warn("Error reading config file")
 		return err
 	}
 
-	err = yaml.UnmarshalStrict(data, fileConfig)
+	testConfig := config.NewEmptyConfig()
+
+	err = yaml.UnmarshalStrict(data, testConfig)
 	if err != nil {
 		ui.Warn("Error parsing config file YAML")
+		return err
+	}
+
+	err = config.HandlePresets(testConfig.Presets.Use, fileConfig)
+	if err != nil {
+		ui.Warn("Error attempting to set presets")
+		return err
+	}
+
+	err = yaml.UnmarshalStrict(data, fileConfig)
+	if err != nil {
+		ui.Warn("error attempting to parse config YAML")
 		return err
 	}
 

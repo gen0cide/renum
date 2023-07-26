@@ -17,7 +17,25 @@ var (
 	namespaceRE  = regexp.MustCompile(`^[a-z0-9\.\_]+$`)
 )
 
+// HandlePresets is used to set defaults before fields are read in from the config.
+func HandlePresets(preset string, c *Config) error {
+	switch preset {
+	case "error":
+		c.Plugins.Renum.Error = true
+		c.enableFullEnum()
+	case "enum":
+		c.enableFullEnum()
+	case "base":
+		c.enableBaseEnum()
+	default:
+		c.enableFullEnum()
+	}
+
+	return nil
+}
+
 // Validate attempts to validate the given config for errors
+//
 //nolint:gocyclo
 func Validate(c *Config) error {
 	if len(c.Initialisms) > 0 {
@@ -69,14 +87,14 @@ func Validate(c *Config) error {
 		return errors.New("specified go.package.name does not match provided go.package.path basename")
 	}
 
-	// check to see if we need to enable any settings due to a preset
-	switch c.Presets.Use {
-	case "error":
-		c.Plugins.Renum.Error = true
-		c.enableRenumEnum()
-	case "enum":
-		c.enableRenumEnum()
-	}
+	// // check to see if we need to enable any settings due to a preset
+	// switch c.Presets.Use {
+	// case "error":
+	// 	c.Plugins.Renum.Error = true
+	// 	c.enableRenumEnum()
+	// case "enum":
+	// 	c.enableRenumEnum()
+	// }
 
 	// ensure we have package path set for required enum implementations
 	if c.Plugins.Renum.Namespacer && c.Go.Package.Path == "" {
@@ -153,7 +171,13 @@ func Validate(c *Config) error {
 
 		// ensure we have a description
 		if c.Plugins.Renum.Descriptioner && x.Description == "" {
-			return fmt.Errorf("enum value %d (%s) did not provide a description, which is required to generate a renum.Descriptioner implementation", x.Value, x.Name)
+			if c.Opts.Strict {
+				return fmt.Errorf("enum value %d (%s) did not provide a description, which is required to generate a renum.Descriptioner implementation", x.Value, x.Name)
+			}
+
+			if x.Comment != "" {
+				x.Description = fmt.Sprintf("%s is an enum value for type %s. %s %s", x.PrefixedPascal(), c.EnumID(), x.PrefixedPascal(), x.Comment)
+			}
 		}
 
 		if x.Description == "" && x.Comment == "" {
